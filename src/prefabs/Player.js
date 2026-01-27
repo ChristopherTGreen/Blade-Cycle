@@ -7,7 +7,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
 
         // temporary
-        this.PLAYER_VELOCITY = 500
+        this.PLAYER_VELOCITY = 200
     }
 
     create() {
