@@ -8,7 +8,8 @@ class Highway extends Phaser.Scene {
     }
 
     create() {
-        // nothing yet
+        // add player sprite
+        this.player = new Player(this, game.config.width/2, game.config.height/2, 'character')
     }
 
     update() {
