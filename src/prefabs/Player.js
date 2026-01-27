@@ -5,9 +5,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // add object to existing scene
         scene.add.existing(this)    // add to existing
         scene.physics.add.existing(this) // add physics to existing
-
-        // temporary
-        this.PLAYER_VELOCITY = 500
+        this.setSize(this.width, this.height/2).setOffset(0, this.height/2)
+        // speed variable
+        this.PLAYER_VELOCITY = 200
     }
 
     create() {
