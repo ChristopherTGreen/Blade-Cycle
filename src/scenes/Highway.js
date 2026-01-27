@@ -12,19 +12,31 @@ class Highway extends Phaser.Scene {
     }
 
     create() {
+        // variables for gameplay
+        // determines if player is in motercycle phase or air phase
+        this.statusCycle = true
+        this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
+        this.wallSize = 32
+
         // place tile sprites
-        this.highwayRoad = this.add.tileSprite(0, this.game.config.height - 200, 720, 200, 'highway-road').setOrigin(0, 0)
-        this.highwayWall = this.add.tileSprite(0, this.game.config.height - 232, 720, 32, 'highway-wall').setOrigin(0, 0)
+        this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
+        this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
         
+
         // add player sprite
-        this.player = new Player(this, game.config.width/2, game.config.height/2, 'bike')
+        this.player = new Player(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike')
+        // set initial player bounds
         this.player.body.setCollideWorldBounds(true)
+        this.physics.world.bounds.top = this.roadTop - this.wallSize
+        console.log(this.physics.world.bounds.top)
 
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    
+    
     }
 
     update() {
