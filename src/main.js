@@ -15,12 +15,12 @@ let config = {
             debug: true
         }
     },
-    scene: [ Highway ]
+    scene: [ Menu, Highway ]
 }
 
 let game = new Phaser.Game(config)
 
 // reserve keyboard bindings (might change to cursors)
-let keyLeft, keyRight, keyUp, keyDown, keySlash
+let keyLEFT, keyRIGHT, keyUP, keyDOWN, keySLASH, keySPACE
 
 // might set UI sizes later

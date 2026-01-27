@@ -4,14 +4,15 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
-        this.physics.add.sprite('character', 'assets/nonstatic/CharacterBox.png')
+        this.load.image('character', './assets/nonstatic/CharacterBox.png')
     }
 
     create() {
-
+        
+        this.scene.start('highwayScene')
     }
 
     update() {
-        this.scene.start('highwayScene')
+        
     }
 }
