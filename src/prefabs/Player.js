@@ -23,15 +23,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // reset velocity
         // player velocity
         let playerVector = new Phaser.Math.Vector2(0, 0)
-        let playerDirection = 'down' // temporary
         
         
         if(keyLEFT.isDown) {
             playerVector.x = -1
-            playerDirection = 'left'
         } else if(keyRIGHT.isDown) {
             playerVector.x = 1
-            playerDirection = 'right'
         }
 
         if(keySPACE.isDown && this.body.onFloor()) {
