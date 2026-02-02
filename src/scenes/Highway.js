@@ -10,6 +10,10 @@ class Highway extends Phaser.Scene {
         this.load.image('highway-wall', './assets/static/HighwayWall.png')
         this.load.image('character', './assets/nonstatic/Character.png')
         this.load.image('platform', './assets/nonstatic/FlyingPlatform.png')
+        this.load.spritesheet('bike-character', './assets/nonstatic/BikeCharacter.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        })
         this.load.spritesheet('hover-guard', './assets/nonstatic/HoverGuard.png', {
             frameWidth: 64
         })
@@ -37,8 +41,9 @@ class Highway extends Phaser.Scene {
         })
         this.createHoverGuard(100, 100)
 
+
         // add bike sprite
-        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike', 0)
+        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 0)
         // set initial bike bounds
         this.bike.body.setCollideWorldBounds(true)
 
@@ -47,10 +52,11 @@ class Highway extends Phaser.Scene {
         this.player.body.setCollideWorldBounds(true)
         this.player.setAlpha(0.0)
         this.player.body.setAllowGravity(false)
+        this.player.setGravityY(500)
 
         // collisions
         this.physics.add.collider(this.bike, this.highwayWall)
-        this.physics.add.collider(this.player, this.hoverGuard, null, this.collisionProcessCallback, this)
+        this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -59,15 +65,13 @@ class Highway extends Phaser.Scene {
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     
-    
+        this.inCallHoverguardPhysics()
     }
 
     update() {
         // status cycle (either player controlled or cycle)
         if (this.statusCycle) {
             this.bike.update()
-            this.player.x = this.bike.x
-            this.player.y = this.bike.y
             this.checkStatusCycle()
         }
         else {
@@ -84,6 +88,8 @@ class Highway extends Phaser.Scene {
 
     // jump checker to make sure swapping goes well, and jumps after switching from cycle
     checkStatusCycle() {
+        this.player.x = this.bike.x
+        this.player.y = this.bike.y
         if(keySPACE.isDown) {
             this.statusCycle = false
             this.player.setAlpha(1.0)
@@ -121,6 +127,8 @@ class Highway extends Phaser.Scene {
     createHoverGuard(x, y) {
         let hoverGuard = new HoverGuard(this, x, y, 'hover-guard')
         hoverGuard.body.setAllowGravity(false)
+        hoverGuard.physicsEstablish()
+        
         this.guards.add(hoverGuard)
     }
 
@@ -128,6 +136,13 @@ class Highway extends Phaser.Scene {
     callHoverGuardAI() {
         this.guards.children.iterate(guard => {
             guard.chase(this.bike)
+        })
+    }
+
+    // hoverguard physics
+    inCallHoverguardPhysics() {
+        this.guards.children.iterate(guard => {
+            guard.physicsEstablish()
         })
     }
 }
