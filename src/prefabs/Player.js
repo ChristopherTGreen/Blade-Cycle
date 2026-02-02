@@ -5,9 +5,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // add object to existing scene
         scene.add.existing(this)    // add to existing
         scene.physics.add.existing(this) // add physics to existing
-        this.setSize(this.width, this.height/2).setOffset(0, this.height/2)
+        this.setSize(this.width/4, this.height/2).setOffset(this.width/2-8, this.height/4)
         // speed variable
-        this.PLAYER_VELOCITY = 200 // technically acceleration
+        this.PLAYER_VELOCITY = 300 // technically acceleration
         this.PLAYER_MAX_VELOCITY = 300
         this.PLAYER_DRAGX = 200
 
@@ -23,19 +23,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // reset velocity
         // player velocity
         let playerVector = new Phaser.Math.Vector2(0, 0)
-        let playerDirection = 'down' // temporary
         
         
         if(keyLEFT.isDown) {
             playerVector.x = -1
-            playerDirection = 'left'
         } else if(keyRIGHT.isDown) {
             playerVector.x = 1
-            playerDirection = 'right'
         }
 
         if(keySPACE.isDown && this.body.onFloor()) {
-            this.body.setVelocityY(-500)
+            this.body.setVelocityY(-300)
         }
 
         this.setAccelerationX(this.PLAYER_VELOCITY * playerVector.x)
