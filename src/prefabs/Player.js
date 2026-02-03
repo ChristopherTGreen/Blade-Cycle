@@ -6,10 +6,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this)    // add to existing
         scene.physics.add.existing(this) // add physics to existing
         this.setSize(this.width/4, this.height/2).setOffset(this.width/2-8, this.height/4)
-        // speed variable
+        // properties
         this.PLAYER_VELOCITY = 300 // technically acceleration
         this.PLAYER_MAX_VELOCITY = 300
         this.PLAYER_DRAGX = 200
+        this.hp = 100
 
         // set drag
         this.setDragX(this.PLAYER_DRAGX)

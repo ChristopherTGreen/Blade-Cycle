@@ -17,6 +17,11 @@ class Highway extends Phaser.Scene {
         this.load.spritesheet('hover-guard', './assets/nonstatic/HoverGuard.png', {
             frameWidth: 64
         })
+        this.load.image('soldier-bike', './assets/nonstatic/SoldierBike.png')
+        this.load.spritesheet('bullet', './assets/nonstatic/Bullet-Sheet.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        })
 
         // variables important
         this.enemyCount = 0
@@ -28,6 +33,17 @@ class Highway extends Phaser.Scene {
         this.statusCycle = true
         this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
         this.wallSize = 32
+
+        // animations
+        this.anims.create({
+            key: 'flying',
+            frames: this.anims.generateFrameNumbers('bullet', {
+                start: 0,
+                end: 3
+            }),
+            framerate:4,
+            repeat: -1
+        })
 
         // place tile sprites
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
@@ -45,6 +61,13 @@ class Highway extends Phaser.Scene {
         this.player.setAlpha(0.0)
         this.player.body.setAllowGravity(false)
         this.player.setGravityY(500)
+
+        // create bullet group
+        this.bullets = this.physics.add.group({
+            classType: Bullet,
+            immovable: true,
+            runChildUpdate: true
+        })
 
         // create enemies
         // hoverguard enemies
@@ -88,8 +111,8 @@ class Highway extends Phaser.Scene {
             this.checkStatusPlayer()
         }
 
-        this.highwayRoad.tilePositionX += 3
-        this.highwayWall.tilePositionX += 3
+        this.highwayRoad.tilePositionX += 8
+        this.highwayWall.tilePositionX += 8
 
         this.callHoverGuardAI()
         this.callSoldierBikeAI()
@@ -125,6 +148,21 @@ class Highway extends Phaser.Scene {
             }
     }
 
+    // bullet code
+    // bullet fired
+    fireBullet(source, target) {
+        const bullet = this.bullets.get()
+
+        if (bullet) {
+            bullet.fire(source, target)
+        }
+    }
+
+    // bullet collision (bullet, target)
+    bulletDamage(target) {
+        target.hp -= 25
+    }
+
     // collision only works down
     collisionProcessCallback(obj1, obj2) {
         if(obj1.y < obj2.y-10 && !keyDOWN.isDown) {
@@ -151,7 +189,7 @@ class Highway extends Phaser.Scene {
     // soldier bike functions
     // creates soldier bike enemy
     createSoldierBike(scene, x, y) {
-        this.soldierBike = new SoldierBike(scene, x, y, 'bike')
+        this.soldierBike = new SoldierBike(scene, x, y, 'soldier-bike')
 
         this.soldiers.add(this.soldierBike)
     }

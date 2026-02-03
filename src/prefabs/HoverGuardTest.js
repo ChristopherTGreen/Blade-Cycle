@@ -46,7 +46,7 @@ class PatrolState extends State {
         let enemyVector = new Phaser.Math.Vector2(0, 0)
 
         // aligns itself with enemy on the x axis, before slowing down
-        if (distance > enemy.trackingDist) {
+        if (distance / enemy.body.acceleration.x > enemy.trackingDist) {
             enemyVector.x = (directionX > 0) ? 1 : -1 
         }
         console.log(enemyVector.x)
@@ -75,7 +75,7 @@ class FireState extends State {
     // executes every call/frame
     execute(scene, enemy, target) {
         // clear tint if we have one
-        console.log("Fired")
+        scene.fireBullet(enemy, target)
 
         // end fire state
         this.stateMachine.transition('cooldown')
