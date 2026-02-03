@@ -30,6 +30,7 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
 
     // given target, will chase
     chase(target) {
+        
         // direction found through boolean
         const locationX = (target.x > this.x) ? 1 : -1
         const distance = Math.abs(target.x - this.x)
@@ -39,5 +40,6 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
             this.body.setAccelerationX(0)
             this.body.velocity.x = this.body.velocity.x/1.1
         }
+
     }
 }
