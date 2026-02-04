@@ -11,6 +11,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.BIKE_MAX_VELOCITY = 500
         this.BIKE_DRAGX = 150
         this.BIKE_DRAGY = 200
+        this.hp
 
         // set drag & disable gravity
         this.setDrag(this.BIKE_DRAGX, this.BIKE_DRAGY)

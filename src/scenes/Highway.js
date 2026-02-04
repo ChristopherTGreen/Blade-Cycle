@@ -17,6 +17,11 @@ class Highway extends Phaser.Scene {
         this.load.spritesheet('hover-guard', './assets/nonstatic/HoverGuard.png', {
             frameWidth: 64
         })
+        this.load.image('soldier-bike', './assets/nonstatic/SoldierBike.png')
+        this.load.spritesheet('bullet', './assets/nonstatic/Bullet-Sheet.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        })
 
         // variables important
         this.enemyCount = 0
@@ -29,18 +34,21 @@ class Highway extends Phaser.Scene {
         this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
         this.wallSize = 32
 
+        // animations
+        this.anims.create({
+            key: 'flying',
+            frames: this.anims.generateFrameNumbers('bullet', {
+                start: 0,
+                end: 3
+            }),
+            framerate:4,
+            repeat: -1
+        })
+
         // place tile sprites
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
         this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
         this.physics.add.existing(this.highwayWall, true)
-
-        // create enemies
-        this.guards = this.physics.add.group({
-            classType: HoverGuard,
-            runChildUpdate: true
-        })
-        this.createHoverGuard(100, 100)
-
 
         // add bike sprite
         this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 0)
@@ -54,9 +62,52 @@ class Highway extends Phaser.Scene {
         this.player.body.setAllowGravity(false)
         this.player.setGravityY(500)
 
+        // create bullet group
+        this.bullets = this.physics.add.group({
+            classType: Bullet,
+            immovable: true,
+            runChildUpdate: true
+        })
+
+        // create enemies
+        // hoverguard enemies
+        this.guards = this.physics.add.group({
+            classType: HoverGuardTest,
+            immovable: true,
+            dragX: 50.0,
+            dragY: 50.0,
+            frictionX: 1.0,
+            runChildUpdate: true
+        })
+        this.createHoverGuard(this, 100, 100)
+        this.createHoverGuard(this, 200, 200)
+        
+        // soldier enemies
+        this.soldiers = this.physics.add.group({
+            classType: SoldierBike,
+            runChildUpdate: true
+        })
+        this.createSoldierBike(this, 100, this.roadTop + 100)
+
+
         // collisions
         this.physics.add.collider(this.bike, this.highwayWall)
         this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
+        this.physics.add.collider(this.bike, this.soldiers)
+        
+        // overlap collisions
+        this.cycleHitbox = this.physics.add.overlap(this.bike, this.bullets, (target, bullet) => {
+            bullet.lifeTime = 0
+            target.hp -= 25
+            console.log('hit')
+        })
+        this.playerHitbox = this.physics.add.overlap(this.player, this.bullets, (target, bullet) => {
+            bullet.lifeTime = 0
+            target.hp -= 25
+            console.log('hit')
+        })
+        this.playerHitbox.active = false
+
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -64,8 +115,6 @@ class Highway extends Phaser.Scene {
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-    
-        this.inCallHoverguardPhysics()
     }
 
     update() {
@@ -79,10 +128,11 @@ class Highway extends Phaser.Scene {
             this.checkStatusPlayer()
         }
 
-        this.highwayRoad.tilePositionX += 3
-        this.highwayWall.tilePositionX += 3
+        this.highwayRoad.tilePositionX += 8
+        this.highwayWall.tilePositionX += 8
 
         this.callHoverGuardAI()
+        this.callSoldierBikeAI()
         
     }
 
@@ -92,6 +142,9 @@ class Highway extends Phaser.Scene {
         this.player.y = this.bike.y
         if(keySPACE.isDown) {
             this.statusCycle = false
+            this.cycleHitbox.active = false
+            this.playerHitbox.active = true
+
             this.player.setAlpha(1.0)
             this.player.body.setAllowGravity(true)
             this.player.body.setVelocityY(-500)
@@ -107,12 +160,22 @@ class Highway extends Phaser.Scene {
             this.bike.y = this.player.y
                 
             this.statusCycle = true
+            this.cycleHitbox.active = true
+            this.playerHitbox.active = false
+
             this.player.setAlpha(0.0)
             this.player.body.setAllowGravity(false)
 
             // call to the player to stop all acceleration/reset it
             this.player.seated()
             }
+    }
+
+    // bullet call
+    fireCall(source, target) {
+        const bullet = this.bullets.get()
+        bullet.enableBody(true, true)
+        bullet.fireBullet(this, source, target)
     }
 
     // collision only works down
@@ -123,26 +186,33 @@ class Highway extends Phaser.Scene {
         return false
     }
 
+    // hover guard functions
     // creates hover guard enemy
-    createHoverGuard(x, y) {
-        let hoverGuard = new HoverGuard(this, x, y, 'hover-guard')
-        hoverGuard.body.setAllowGravity(false)
-        hoverGuard.physicsEstablish()
+    createHoverGuard(scene, x, y) {
+        this.hoverGuard = new HoverGuardTest(scene, x, y, 'hover-guard', 0, 'right', this.bike)
         
-        this.guards.add(hoverGuard)
+        this.guards.add(this.hoverGuard)
     }
 
     // hoverguard ai, chases the bike
     callHoverGuardAI() {
         this.guards.children.iterate(guard => {
-            guard.chase(this.bike)
+            guard.guardFSM.step()
         })
     }
 
-    // hoverguard physics
-    inCallHoverguardPhysics() {
-        this.guards.children.iterate(guard => {
-            guard.physicsEstablish()
+    // soldier bike functions
+    // creates soldier bike enemy
+    createSoldierBike(scene, x, y) {
+        this.soldierBike = new SoldierBike(scene, x, y, 'soldier-bike')
+
+        this.soldiers.add(this.soldierBike)
+    }
+
+    // soldier bike ai, chases the bike closely
+    callSoldierBikeAI() {
+        this.soldiers.children.iterate(soldier => {
+            soldier.chase(this.bike)
         })
     }
 }
