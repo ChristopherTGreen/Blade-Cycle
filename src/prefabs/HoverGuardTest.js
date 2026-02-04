@@ -62,11 +62,11 @@ class PatrolState extends State {
         const distanceY = target.y - enemy.y
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
-        if (enemy.y < target.y && distanceY > enemy.trackingDist*Phaser.Math.Between(4, 5)) {
+        if (distance > enemy.trackingDist && enemy.y < target.y && distanceY > enemy.trackingDist*Phaser.Math.Between(4, 5)) {
             console.log("above")
             enemyVector.y = 1
         }
-        else if (enemy.y > target.y - enemy.trackingDist){
+        else if (distance > enemy.trackingDist &&enemy.y > target.y - enemy.trackingDist){
             console.log("too low")
             enemyVector.y = -1
         }
