@@ -75,10 +75,12 @@ class Highway extends Phaser.Scene {
             classType: HoverGuardTest,
             immovable: true,
             dragX: 50.0,
+            dragY: 50.0,
             frictionX: 1.0,
             runChildUpdate: true
         })
         this.createHoverGuard(this, 100, 100)
+        this.createHoverGuard(this, 200, 200)
         
         // soldier enemies
         this.soldiers = this.physics.add.group({
@@ -92,6 +94,8 @@ class Highway extends Phaser.Scene {
         this.physics.add.collider(this.bike, this.highwayWall)
         this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
         this.physics.add.collider(this.bike, this.soldiers)
+        
+        // overlap collisions
         this.cycleHitbox = this.physics.add.overlap(this.bike, this.bullets, (target, bullet) => {
             bullet.lifeTime = 0
             target.hp -= 25
@@ -102,8 +106,8 @@ class Highway extends Phaser.Scene {
             target.hp -= 25
             console.log('hit')
         })
-    
         this.playerHitbox.active = false
+
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -193,7 +197,7 @@ class Highway extends Phaser.Scene {
     // hoverguard ai, chases the bike
     callHoverGuardAI() {
         this.guards.children.iterate(guard => {
-            this.guardFSM.step()
+            guard.guardFSM.step()
         })
     }
 

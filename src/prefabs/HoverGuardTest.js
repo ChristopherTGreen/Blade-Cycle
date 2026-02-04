@@ -7,7 +7,8 @@ class HoverGuardTest extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
     
         // properties
-        this.accel = 100.0
+        this.accelX = 100.0
+        this.accelY = 50.0
         this.direction = direction
         this.firing = false
         this.trackingDist = 50
@@ -21,10 +22,9 @@ class HoverGuardTest extends Phaser.Physics.Arcade.Sprite {
         console.log("called constructor")
 
         // initialize state machine managing hero (initial state, possible states, state args[])
-        scene.guardFSM = new StateMachine('patrol', {
+        this.guardFSM = new StateMachine('patrol', {
             patrol: new PatrolState(),
             fire: new FireState(),
-            cooldown: new CooldownState(),
             death: new DeathState(),
         }, [scene, this, this.target]) // scene context
     }
@@ -40,6 +40,7 @@ class PatrolState extends State {
         // checks status of target, might need to switch
         if (!scene.statusCycle) target = scene.player
         
+        // x movement
         // direction found through boolean
         const directionX = (target.x > enemy.x) ? 1 : -1
         const distanceX = Math.abs(target.x - enemy.x)
@@ -53,13 +54,30 @@ class PatrolState extends State {
             enemyVector.x = (directionX > 0) ? 1 : -1 
         }
 
-        enemy.body.setAccelerationX(enemy.accel * enemyVector.x)
+        enemy.body.setAccelerationX(enemy.accelX * enemyVector.x)
 
+        // y movement
+        // finds distance on the y
+        // very similar to soldierbike, but will always try to be high up slightly
+        const distanceY = target.y - enemy.y
+
+        // aligns itself with enemy above or below, relative to player's y axis, and closest position
+        if (enemy.y < target.y && distanceY > enemy.trackingDist*Phaser.Math.Between(4, 5)) {
+            console.log("above")
+            enemyVector.y = 1
+        }
+        else if (enemy.y > target.y - enemy.trackingDist){
+            console.log("too low")
+            enemyVector.y = -1
+        }
+        
+        enemy.body.setAccelerationY(enemy.accelY * enemyVector.y)
+        
         // detection to fire & charge weapon
         if (distance < 300 && distance > enemy.trackingDist && !enemy.firing) {
             enemy.firing = true
             // wait 500ms to fire (if still alive)
-            scene.time.delayedCall(500, () => {
+            scene.time.delayedCall(1000, () => {
                 if (enemy && enemy.active) this.stateMachine.transition('fire')
             })
         }
@@ -80,49 +98,10 @@ class FireState extends State {
 
         // clear tint if we have one
         scene.fireCall(enemy, target)
+        enemy.firing = false
 
         // end fire state
-        this.stateMachine.transition('cooldown')
-    }
-}
-
-// cooldown: period of unable to fire, same as the patrol without ability to fire
-class CooldownState extends State {
-    enter(scene, enemy, target) {
-        // cooldown period in #ms
-        scene.time.delayedCall(100, () => {
-            if (enemy && enemy.active) {
-                enemy.firing = false
-                this.stateMachine.transition('patrol')
-            }
-            // double check if this works
-        })
-    }
-
-    // executes every call/frame
-    execute(scene, enemy, target) {
-         // checks status of target, might need to switch
-        if (!scene.statusCycle) target = scene.player
-        
-        // direction found through boolean
-        const directionX = (target.x > enemy.x) ? 1 : -1
-        const distanceX = Math.abs(target.x - enemy.x)
-        const distance = Math.abs(Math.pow(Math.pow(target.x - enemy.x, 2) + Math.pow(target.y - enemy.y, 2), 1/2))
-
-        let enemyVector = new Phaser.Math.Vector2(0, 0)
-
-        // aligns itself with enemy on the x axis, before slowing down
-        // secondary condition, if player is too close, will cancel
-        if (distance > enemy.trackingDist && distanceX / enemy.body.acceleration.x > enemy.trackingDist) {
-            enemyVector.x = (directionX > 0) ? 1 : -1 
-        }
-
-        enemy.body.setAccelerationX(enemy.accel * enemyVector.x)
-
-        // detection if death & transition to death
-        if (enemy.hp <= 0) {
-            this.stateMachine.transition('death')
-        }
+        this.stateMachine.transition('patrol')
     }
 }
 
