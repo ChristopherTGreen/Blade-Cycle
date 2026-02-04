@@ -10,31 +10,36 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.speed = 100
         this.lifeTime = 10000
         this.setSize(4, 4)
+        this.damagePossible = true
 
         this._temp = new Phaser.Math.Vector2()
     }
 
-    fire (source, target) {
-        this.lifeTime = 5000
-
-        this.setActive(true)
-        this.setVisible(true)
-        let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(source.x, source.y, target.x, target.y))
-        this.setAngle(angle)
-        this.setPosition(source.x, source.y)
-        this.body.reset(source.x, source.y)
-
-        this.scene.physics.velocityFromAngle(angle, this.speed, this.body.velocity)
-        this.anims.play('flying', true)
-    }
-
-    update (time, delta) {
+    update(time, delta) {
         this.lifeTime -= delta
 
         if (this.lifeTime <= 0) {
             this.setActive(false)
             this.setVisible(false)
-            this.body.stop()
+            this.disableBody(true, true)
         }
     }
+
+    fireBullet(scene, source, target) { 
+        if (source) { 
+            this.lifeTime = 5000
+
+            this.body.enable
+            this.setActive(true)
+            this.setVisible(true)
+            let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(source.x, source.y, target.x, target.y))
+            this.setAngle(angle)
+            this.setPosition(source.x, source.y)
+            this.body.reset(source.x, source.y)
+
+            this.scene.physics.velocityFromAngle(angle, this.speed, this.body.velocity)
+            this.anims.play('flying', true)
+        }
+    }
+    
 }

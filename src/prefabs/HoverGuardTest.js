@@ -12,9 +12,7 @@ class HoverGuardTest extends Phaser.Physics.Arcade.Sprite {
         this.firing = false
         this.trackingDist = 50
         this.hp = 100.0
-
-        this.setDragX = 50.0
-        this.setFrictionX(1.0)
+        this.target = target
 
         // physics
         this.setSize(64, 4)
@@ -28,7 +26,7 @@ class HoverGuardTest extends Phaser.Physics.Arcade.Sprite {
             fire: new FireState(),
             cooldown: new CooldownState(),
             death: new DeathState(),
-        }, [scene, this, target]) // scene context
+        }, [scene, this, this.target]) // scene context
     }
 }
 
@@ -39,28 +37,31 @@ class HoverGuardTest extends Phaser.Physics.Arcade.Sprite {
 class PatrolState extends State {
     // executes every call/frame
     execute(scene, enemy, target) {
+        // checks status of target, might need to switch
+        if (!scene.statusCycle) target = scene.player
+        
         // direction found through boolean
         const directionX = (target.x > enemy.x) ? 1 : -1
-        const distance = Math.abs(target.x - enemy.x)
+        const distanceX = Math.abs(target.x - enemy.x)
+        const distance = Math.abs(Math.pow(Math.pow(target.x - enemy.x, 2) + Math.pow(target.y - enemy.y, 2), 1/2))
 
         let enemyVector = new Phaser.Math.Vector2(0, 0)
 
         // aligns itself with enemy on the x axis, before slowing down
-        if (distance / enemy.body.acceleration.x > enemy.trackingDist) {
+        // secondary condition, if player is too close, will cancel
+        if (distance > enemy.trackingDist && distanceX / enemy.body.acceleration.x > enemy.trackingDist) {
             enemyVector.x = (directionX > 0) ? 1 : -1 
         }
-        console.log(enemyVector.x)
-        console.log(enemy.body.acceleration.x)
+
         enemy.body.setAccelerationX(enemy.accel * enemyVector.x)
 
-
         // detection to fire & charge weapon
-        if (distance < 100 && distance > enemy.trackingDist/2) {
+        if (distance < 300 && distance > enemy.trackingDist && !enemy.firing) {
+            enemy.firing = true
             // wait 500ms to fire (if still alive)
             scene.time.delayedCall(500, () => {
                 if (enemy && enemy.active) this.stateMachine.transition('fire')
             })
-            this.stateMachine.transition('fire')
         }
 
         // detection if death & transition to death
@@ -74,8 +75,11 @@ class PatrolState extends State {
 class FireState extends State {
     // executes every call/frame
     execute(scene, enemy, target) {
+        // checks status of target, might need to switch
+        if (!scene.statusCycle) target = scene.player
+
         // clear tint if we have one
-        scene.fireBullet(enemy, target)
+        scene.fireCall(enemy, target)
 
         // end fire state
         this.stateMachine.transition('cooldown')
@@ -85,26 +89,33 @@ class FireState extends State {
 // cooldown: period of unable to fire, same as the patrol without ability to fire
 class CooldownState extends State {
     enter(scene, enemy, target) {
-        scene.time.delayedCall(1000, () => {
-            if (enemy && enemy.active) this.stateMachine.transition('patrol')
+        // cooldown period in #ms
+        scene.time.delayedCall(100, () => {
+            if (enemy && enemy.active) {
+                enemy.firing = false
+                this.stateMachine.transition('patrol')
+            }
             // double check if this works
         })
     }
 
     // executes every call/frame
     execute(scene, enemy, target) {
+         // checks status of target, might need to switch
+        if (!scene.statusCycle) target = scene.player
+        
         // direction found through boolean
         const directionX = (target.x > enemy.x) ? 1 : -1
-        const distance = Math.abs(target.x - enemy.x)
+        const distanceX = Math.abs(target.x - enemy.x)
+        const distance = Math.abs(Math.pow(Math.pow(target.x - enemy.x, 2) + Math.pow(target.y - enemy.y, 2), 1/2))
 
         let enemyVector = new Phaser.Math.Vector2(0, 0)
 
         // aligns itself with enemy on the x axis, before slowing down
-        if (distance > enemy.trackingDist) {
+        // secondary condition, if player is too close, will cancel
+        if (distance > enemy.trackingDist && distanceX / enemy.body.acceleration.x > enemy.trackingDist) {
             enemyVector.x = (directionX > 0) ? 1 : -1 
         }
-        console.log(enemyVector.x)
-        console.log(enemy.body.acceleration.x)
 
         enemy.body.setAccelerationX(enemy.accel * enemyVector.x)
 

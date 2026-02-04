@@ -75,6 +75,7 @@ class Highway extends Phaser.Scene {
             classType: HoverGuardTest,
             immovable: true,
             dragX: 50.0,
+            frictionX: 1.0,
             runChildUpdate: true
         })
         this.createHoverGuard(this, 100, 100)
@@ -91,6 +92,18 @@ class Highway extends Phaser.Scene {
         this.physics.add.collider(this.bike, this.highwayWall)
         this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
         this.physics.add.collider(this.bike, this.soldiers)
+        this.cycleHitbox = this.physics.add.overlap(this.bike, this.bullets, (target, bullet) => {
+            bullet.lifeTime = 0
+            target.hp -= 25
+            console.log('hit')
+        })
+        this.playerHitbox = this.physics.add.overlap(this.player, this.bullets, (target, bullet) => {
+            bullet.lifeTime = 0
+            target.hp -= 25
+            console.log('hit')
+        })
+    
+        this.playerHitbox.active = false
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -125,6 +138,9 @@ class Highway extends Phaser.Scene {
         this.player.y = this.bike.y
         if(keySPACE.isDown) {
             this.statusCycle = false
+            this.cycleHitbox.active = false
+            this.playerHitbox.active = true
+
             this.player.setAlpha(1.0)
             this.player.body.setAllowGravity(true)
             this.player.body.setVelocityY(-500)
@@ -140,6 +156,9 @@ class Highway extends Phaser.Scene {
             this.bike.y = this.player.y
                 
             this.statusCycle = true
+            this.cycleHitbox.active = true
+            this.playerHitbox.active = false
+
             this.player.setAlpha(0.0)
             this.player.body.setAllowGravity(false)
 
@@ -148,19 +167,11 @@ class Highway extends Phaser.Scene {
             }
     }
 
-    // bullet code
-    // bullet fired
-    fireBullet(source, target) {
+    // bullet call
+    fireCall(source, target) {
         const bullet = this.bullets.get()
-
-        if (bullet) {
-            bullet.fire(source, target)
-        }
-    }
-
-    // bullet collision (bullet, target)
-    bulletDamage(target) {
-        target.hp -= 25
+        bullet.enableBody(true, true)
+        bullet.fireBullet(this, source, target)
     }
 
     // collision only works down
