@@ -123,6 +123,7 @@ class Highway extends Phaser.Scene {
             this.statusCycle = false
             this.cycleHitbox.active = false
             this.playerHitbox.active = true
+            this.bike.anims.play('empty-bike')
 
             this.player.setAlpha(1.0)
             this.player.body.setAllowGravity(true)
@@ -137,6 +138,8 @@ class Highway extends Phaser.Scene {
         if (this.player.y > (game.config.height/2 + game.config.height/4)) {
             this.bike.x = this.player.x
             this.bike.y = this.player.y
+            this.bike.anims.play('riding-bike')
+            
                 
             this.statusCycle = true
             this.cycleHitbox.active = true

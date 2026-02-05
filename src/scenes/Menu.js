@@ -56,6 +56,7 @@ class Menu extends Phaser.Scene {
             key: 'empty-bike',
             frames: this.anims.generateFrameNumbers('bike-character', {
                 start: 1,
+                end: 1
             }),
             framerate:0,
             repeat: 0
@@ -63,7 +64,35 @@ class Menu extends Phaser.Scene {
         this.anims.create({
             key: 'riding-bike',
             frames: this.anims.generateFrameNumbers('bike-character', {
-                start: 0
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'jumping',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'moving',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
             }),
             framerate:0,
             repeat: 0
@@ -85,6 +114,15 @@ class Menu extends Phaser.Scene {
                 end: 9
             }),
             framerate: 1,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'stab-down',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate: 0,
             repeat: 0
         })
 
