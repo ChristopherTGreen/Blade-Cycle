@@ -1,60 +1,113 @@
 class SoldierBike extends Phaser.Physics.Arcade.Sprite {
-    constructor (scene, x, y, texture, frame) {
+    constructor (scene, x, y, texture, frame, direction, target) {
         super(scene, x, y, texture, frame)
 
         // add object to existing scene
         scene.add.existing(this)    // add to existing
         scene.physics.add.existing(this) // add physics to existing
-        
-        // values
-        this.VELOCITY_X = 50.0
-        this.VELOCITY_Y = 20.0
-        // limitations
-        this.setDragX = 5.0
-        this.setFrictionX(1.0)
+    
+        // properties
+        this.accelX = 60.0
+        this.accelY = 40.0
+        this.direction = direction
+        this.firing = false
+        this.trackingDist = 20
+        this.hp = 100.0
+        this.target = target
 
-        // other
+        // physics
         this.setSize(this.width, this.height/4).setOffset(0, 3 * this.height/4)
         this.setImmovable(true)
         this.body.setAllowGravity(false)
-        console.log("called constructor")
-    }
+        console.log("called constructor ah")
 
-    create() {
-        
+        // initialize state machine managing hero (initial state, possible states, state args[])
+        this.soldierFSM = new StateMachine('chase', {
+            chase: new ChaseState(),
+            fireB: new FireBState(),
+            deathB: new DeathBState(),
+        }, [scene, this, this.target]) // scene context
     }
+}
+// guard-specific state classes
+// idle essentially means no target locked
+// cases: 
+//          player is on top of guard
+class ChaseState extends State {
+    // executes every call/frame
+    execute(scene, enemy, target) {
+        // x movement
+        // direction found through boolean
+        const directionX = (target.x > enemy.x) ? 1 : -1
+        const distanceX = Math.abs(target.x - enemy.x)
+        const distance = Math.abs(Math.pow(Math.pow(target.x - enemy.x, 2) + Math.pow(target.y - enemy.y, 2), 1/2))
 
-    update() {
-        
-    }
+        let enemyVector = new Phaser.Math.Vector2(0, 0)
 
-    // given target, will chase
-    chase(target) {
-         // direction found through boolean
-        const locationX = (target.x > this.x) ? 1 : -1
-        const distanceX = Math.abs(target.x - this.x)
         // aligns itself with enemy on the x axis, before slowing down
-        if (distanceX > 40) this.body.setAccelerationX(this.VELOCITY_X * locationX)
-        else {
-            this.body.setAccelerationX(0)
-            this.body.velocity.x = this.body.velocity.x/1.1
+        // secondary condition, if player is too close, will cancel
+        if (distance > enemy.trackingDist && distanceX / enemy.body.acceleration.x > enemy.trackingDist) {
+            enemyVector.x = (directionX > 0) ? 1 : -1 
         }
 
-        const attackRange = 30  
-        const distanceY = Math.abs(target.y - this.y)
+        enemy.body.setAccelerationX(enemy.accelX * enemyVector.x)
+
+        // y movement
+        // finds distance on the y
+        const distanceY = Math.abs(target.y - enemy.y)
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
-        if (this.y > target.y && distanceY > attackRange) {
-            console.log("below")
-            this.body.setAccelerationY(-this.VELOCITY_Y)
+        if (enemy.y > target.y && distanceY > 50) {
+            console.log("soldier: below")
+            enemyVector.y = -1
         }
-        else if (this.y < target.y && distanceY > attackRange ) {
-            console.log("above")
-            this.body.setAccelerationY(this.VELOCITY_Y)
+        else if (enemy.y < target.y && distanceY > 50) {
+            console.log("soldier: above")
+            enemyVector.y = 1
         }
-        else {
-            this.body.setAccelerationY(0)
-            this.body.setVelocityY(0)
+        
+        enemy.body.setAccelerationY(enemy.accelY * enemyVector.y)
+        
+        // detection to fire & charge weapon
+        if (distance < 300 && distance > enemy.trackingDist && !enemy.firing) {
+            enemy.firing = true
+            // wait 500ms to fire (if still alive)
+            scene.time.delayedCall(1000, () => {
+                if (enemy && enemy.active) this.stateMachine.transition('fireB')
+            })
         }
+
+        // detection if death & transition to death
+        if (enemy.hp <= 0) {
+            this.stateMachine.transition('deathB')
+        }
+    }
+}
+
+// fire: essentially is the process of shooting
+class FireBState extends State {
+    // executes every call/frame
+    execute(scene, enemy, target) {
+        // checks status of target, might need to switch
+        if (!scene.statusCycle) target = scene.player
+
+        // clear tint if we have one
+        scene.fireCall(enemy, target)
+        enemy.firing = false
+
+        // end fire state
+        this.stateMachine.transition('chase')
+    }
+}
+
+// death: hp is 0, and guard is destroyed and deleted
+class DeathBState extends State {
+    // executes every call/frame
+    execute(scene, enemy, target) {
+        // clear tint if we have one
+        console.log("Death")
+
+        // delete (wip)
+        this.stateMachine.transition('chase')
     }
 }

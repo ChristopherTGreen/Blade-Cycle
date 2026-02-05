@@ -4,27 +4,7 @@ class Highway extends Phaser.Scene {
     }
 
     preload() {
-        // load assets
-        this.load.image('bike', './assets/nonstatic/Bike.png')
-        this.load.image('highway-road', './assets/static/HighwayRoad.png')
-        this.load.image('highway-wall', './assets/static/HighwayWall.png')
-        this.load.image('character', './assets/nonstatic/Character.png')
-        this.load.image('platform', './assets/nonstatic/FlyingPlatform.png')
-        this.load.spritesheet('bike-character', './assets/nonstatic/BikeCharacter.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        this.load.spritesheet('hover-guard', './assets/nonstatic/HoverGuard.png', {
-            frameWidth: 64
-        })
-        this.load.image('soldier-bike', './assets/nonstatic/SoldierBike.png')
-        this.load.spritesheet('bullet', './assets/nonstatic/Bullet-Sheet.png', {
-            frameWidth: 32,
-            frameHeight: 32
-        })
 
-        // variables important
-        this.enemyCount = 0
     }
 
     create() {
@@ -33,17 +13,6 @@ class Highway extends Phaser.Scene {
         this.statusCycle = true
         this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
         this.wallSize = 32
-
-        // animations
-        this.anims.create({
-            key: 'flying',
-            frames: this.anims.generateFrameNumbers('bullet', {
-                start: 0,
-                end: 3
-            }),
-            framerate:4,
-            repeat: -1
-        })
 
         // place tile sprites
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
@@ -72,7 +41,7 @@ class Highway extends Phaser.Scene {
         // create enemies
         // hoverguard enemies
         this.guards = this.physics.add.group({
-            classType: HoverGuardTest,
+            classType: HoverGuard,
             immovable: true,
             dragX: 50.0,
             dragY: 50.0,
@@ -81,19 +50,29 @@ class Highway extends Phaser.Scene {
         })
         this.createHoverGuard(this, 100, 100)
         this.createHoverGuard(this, 200, 200)
+        this.createHoverGuard(this, 0, 0)
+        this.createHoverGuard(this, 300, 300)
         
         // soldier enemies
         this.soldiers = this.physics.add.group({
             classType: SoldierBike,
+            dragX: 20.0,
+            dragY: 14.0,
+            friction: 0.2,
+            collideWorldBounds: true,
             runChildUpdate: true
         })
         this.createSoldierBike(this, 100, this.roadTop + 100)
+        this.createSoldierBike(this, 200, this.roadTop + 200)
+        this.createSoldierBike(this, 150, this.roadTop + 150)
 
 
         // collisions
         this.physics.add.collider(this.bike, this.highwayWall)
         this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
         this.physics.add.collider(this.bike, this.soldiers)
+        this.physics.add.collider(this.soldiers, this.highwayWall)
+        this.physics.add.collider(this.soldiers, this.soldiers)
         
         // overlap collisions
         this.cycleHitbox = this.physics.add.overlap(this.bike, this.bullets, (target, bullet) => {
@@ -128,8 +107,8 @@ class Highway extends Phaser.Scene {
             this.checkStatusPlayer()
         }
 
-        this.highwayRoad.tilePositionX += 8
-        this.highwayWall.tilePositionX += 8
+        this.highwayRoad.tilePositionX += 6
+        this.highwayWall.tilePositionX += 6
 
         this.callHoverGuardAI()
         this.callSoldierBikeAI()
@@ -189,7 +168,7 @@ class Highway extends Phaser.Scene {
     // hover guard functions
     // creates hover guard enemy
     createHoverGuard(scene, x, y) {
-        this.hoverGuard = new HoverGuardTest(scene, x, y, 'hover-guard', 0, 'right', this.bike)
+        this.hoverGuard = new HoverGuard(scene, x, y, 'hover-guard', 0, 'right', this.bike)
         
         this.guards.add(this.hoverGuard)
     }
@@ -204,7 +183,7 @@ class Highway extends Phaser.Scene {
     // soldier bike functions
     // creates soldier bike enemy
     createSoldierBike(scene, x, y) {
-        this.soldierBike = new SoldierBike(scene, x, y, 'soldier-bike')
+        this.soldierBike = new SoldierBike(scene, x, y, 'soldier-bike', 0, 'right', this.bike)
 
         this.soldiers.add(this.soldierBike)
     }
@@ -212,7 +191,7 @@ class Highway extends Phaser.Scene {
     // soldier bike ai, chases the bike closely
     callSoldierBikeAI() {
         this.soldiers.children.iterate(soldier => {
-            soldier.chase(this.bike)
+            soldier.soldierFSM.step()
         })
     }
 }
