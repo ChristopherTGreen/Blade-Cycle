@@ -24,7 +24,7 @@ class SoldierBike extends Phaser.Physics.Arcade.Sprite {
         // initialize state machine managing hero (initial state, possible states, state args[])
         this.soldierFSM = new StateMachine('chase', {
             chase: new ChaseState(),
-            fireB: new FireBState(),
+            fireSoldier: new FireSoldierState(),
             deathB: new DeathBState(),
         }, [scene, this, this.target]) // scene context
     }
@@ -57,11 +57,11 @@ class ChaseState extends State {
         const distanceY = Math.abs(target.y - enemy.y)
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
-        if (enemy.y > target.y && distanceY > 50) {
+        if (enemy.y > target.y && distanceY > 70) {
             console.log("soldier: below")
             enemyVector.y = -1
         }
-        else if (enemy.y < target.y && distanceY > 50) {
+        else if (enemy.y < target.y && distanceY > 70) {
             console.log("soldier: above")
             enemyVector.y = 1
         }
@@ -73,7 +73,7 @@ class ChaseState extends State {
             enemy.firing = true
             // wait 500ms to fire (if still alive)
             scene.time.delayedCall(1000, () => {
-                if (enemy && enemy.active) this.stateMachine.transition('fireB')
+                if (enemy && enemy.active) this.stateMachine.transition('fireSoldier')
             })
         }
 
@@ -85,7 +85,7 @@ class ChaseState extends State {
 }
 
 // fire: essentially is the process of shooting
-class FireBState extends State {
+class FireSoldierState extends State {
     // executes every call/frame
     execute(scene, enemy, target) {
         // checks status of target, might need to switch
@@ -100,14 +100,17 @@ class FireBState extends State {
     }
 }
 
-// death: hp is 0, and guard is destroyed and deleted
+// death: hp is 0, and bike is destroyed and deleted
 class DeathBState extends State {
     // executes every call/frame
-    execute(scene, enemy, target) {
+    enter(scene, enemy, target) {
         // clear tint if we have one
         console.log("Death")
 
-        // delete (wip)
-        this.stateMachine.transition('chase')
+        enemy.setActive(false)
+        enemy.setVisible(false)
+        enemy.disableBody(true, true)
+        enemy.destroy()
+        
     }
 }

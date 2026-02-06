@@ -49,7 +49,7 @@ class PatrolState extends State {
         let enemyVector = new Phaser.Math.Vector2(0, 0)
 
         // aligns itself with enemy on the x axis, before slowing down
-        // secondary condition, if player is too close, will cancel
+        // secondary condition, if player is too close, will cancel (only applies if player is not in cycle)
         if (distance > enemy.trackingDist && distanceX / enemy.body.acceleration.x > enemy.trackingDist) {
             enemyVector.x = (directionX > 0) ? 1 : -1 
         }
@@ -66,7 +66,7 @@ class PatrolState extends State {
             console.log("guard: above")
             enemyVector.y = 1
         }
-        else if (distance > enemy.trackingDist &&enemy.y > target.y - enemy.trackingDist){
+        else if (distance > enemy.trackingDist && enemy.y > target.y - enemy.trackingDist/2){
             console.log("guard: too low")
             enemyVector.y = -1
         }

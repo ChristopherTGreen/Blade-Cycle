@@ -11,7 +11,10 @@ class Menu extends Phaser.Scene {
         this.load.image('bike', 'nonstatic/Bike.png')
         this.load.image('highway-road', 'static/HighwayRoad.png')
         this.load.image('highway-wall', 'static/HighwayWall.png')
-        this.load.image('character', 'nonstatic/Character.png')
+        this.load.spritesheet('character', 'nonstatic/Character.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        })
         this.load.image('platform', 'nonstatic/FlyingPlatform.png')
         this.load.spritesheet('bike-character', 'nonstatic/BikeCharacter.png', {
             frameWidth: 64,
@@ -71,7 +74,7 @@ class Menu extends Phaser.Scene {
             repeat: 0
         })
         this.anims.create({
-            key: 'jumping',
+            key: 'move-jumpright',
             frames: this.anims.generateFrameNumbers('character', {
                 start: 0,
                 end: 0
@@ -80,7 +83,7 @@ class Menu extends Phaser.Scene {
             repeat: 0
         })
         this.anims.create({
-            key: 'moving',
+            key: 'move-jumpleft',
             frames: this.anims.generateFrameNumbers('character', {
                 start: 0,
                 end: 0
@@ -89,7 +92,7 @@ class Menu extends Phaser.Scene {
             repeat: 0
         })
         this.anims.create({
-            key: 'idle',
+            key: 'idle-right',
             frames: this.anims.generateFrameNumbers('character', {
                 start: 0,
                 end: 0
@@ -97,6 +100,35 @@ class Menu extends Phaser.Scene {
             framerate:0,
             repeat: 0
         })
+        this.anims.create({
+            key: 'idle-left',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'move-right',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+        this.anims.create({
+            key: 'move-left',
+            frames: this.anims.generateFrameNumbers('character', {
+                start: 0,
+                end: 0
+            }),
+            framerate:0,
+            repeat: 0
+        })
+
+
         // attack anims
         this.anims.create({
             key: 'slash-up',
@@ -104,7 +136,7 @@ class Menu extends Phaser.Scene {
                 start: 0,
                 end: 9
             }),
-            framerate: 1,
+            framerate: 0.5,
             repeat: 0
         })
         this.anims.create({
@@ -113,7 +145,7 @@ class Menu extends Phaser.Scene {
                 start: 0,
                 end: 9
             }),
-            framerate: 1,
+            framerate: 0.5,
             repeat: 0
         })
         this.anims.create({
