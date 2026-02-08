@@ -13,7 +13,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.bikeSlash = true
 
         this.direction = direction
-        this.hp = 5000.0
+        this.hp = 500.0
         this.recentHit = false
 
         // physics

@@ -12,7 +12,7 @@ class PlayerTest extends Phaser.Physics.Arcade.Sprite {
         this.maxAccel = 300.0
 
         this.direction = direction
-        this.hp = 5000.0
+        this.hp = 500.0
         this.initialDist = true
 
         // physics
