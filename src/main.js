@@ -4,10 +4,15 @@
 
 let config = {
     type: Phaser.AUTO,
-    width: 720,
+    width: 854,
     height: 480,
+    scale: {
+        zoom: 1
+
+    },
     render: {
-        pixelArt: true
+        pixelArt: true,
+        
     },
     physics: {
         default: 'arcade',
@@ -15,9 +20,11 @@ let config = {
             gravity: {
                 y: 0
             },
-            debug: true
+            debug: true,
+            
         }
     },
+    
     scene: [ Menu, Highway ]
 }
 

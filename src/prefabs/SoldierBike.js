@@ -14,12 +14,26 @@ class SoldierBike extends Phaser.Physics.Arcade.Sprite {
         this.trackingDist = 20
         this.hp = 100.0
         this.target = target
+        this.recentHit = false
 
         // physics
         this.setSize(this.width, this.height/4).setOffset(0, 3 * this.height/4)
         this.setImmovable(true)
         this.body.setAllowGravity(false)
         console.log("called constructor ah")
+
+        // hitbox for the slash, causes damage
+        scene.physics.add.overlap(scene.bike.slashHitbox, this, (hitbox, enemy) => {
+            if (hitbox.body.enable && !enemy.recentHit) {
+                enemy.hp -= 50.0
+                console.log('success hitttttttttt')
+                hitbox.body.enable = false
+                enemy.recentHit = true
+
+                // time of red hit and time of vulnerability
+                scene.damageHit(enemy, 75, 25)
+            }
+        })
 
         // initialize state machine managing hero (initial state, possible states, state args[])
         this.soldierFSM = new StateMachine('chase', {

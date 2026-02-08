@@ -12,16 +12,25 @@ class PlayerTest extends Phaser.Physics.Arcade.Sprite {
         this.maxAccel = 300.0
 
         this.direction = direction
-        this.hp = 400.0
+        this.hp = 5000.0
         this.initialDist = true
 
         // physics
-        this.setSize(this.width/4, this.height/2).setOffset(this.width/2-8, this.height/4)
+        this.setSize(this.width/8, this.height/1.5).setOffset(this.width/2-4, this.height/6)
         this.body.setCollideWorldBounds(true)
         this.body.setGravityY(300)
         this.setDragX(200)
         this.body.setAllowGravity(false)
         console.log("called constructor play")
+
+        // stab damageboxes
+        this.hitboxSizeV = 30
+        this.stabHitbox = scene.add.zone(0, 0, 14, this.hitboxSizeV);
+        scene.physics.add.existing(this.stabHitbox);
+        this.stabHitbox.body.setAllowGravity(false);
+        this.stabHitbox.body.enable = false; // Start disabled
+        this.hitboxX = 10
+        this.hitboxDownY = 10
 
 
         // initialize state machine managing hero (in9itial state, possible states, state args[])
@@ -102,6 +111,7 @@ class IdleState extends State {
 
         // stab down
         if (keyARDOWN.isDown) {
+            player.direction = 'down'
             this.stateMachine.transition('stab')
         }
 
@@ -112,6 +122,7 @@ class IdleState extends State {
 
         if (player.body.y > game.config.height - 40) this.stateMachine.transition('inactive')
 
+        
     }
 }
 
@@ -147,6 +158,7 @@ class MoveState extends State {
 
         // stab down
         if (keyARDOWN.isDown) {
+            player.direction = 'down'
             this.stateMachine.transition('stab')
         }
 
@@ -204,16 +216,26 @@ class JumpState extends State {
 // stab: player stabs the ground, can't move for a split second until animation
 class StabState extends State {
     enter(scene, player) {
-        console.log('stab')
         player.setAcceleration(0, 0)
         player.setVelocity(0, 0)
         player.anims.play(`stab-down`)
+
+        // damage hitbox
+        player.stabHitbox.x = player.x + player.hitboxX
+        player.stabHitbox.y = player.y + ((player.direction == 'up') ? player.hitboxUpY : player.hitboxDownY)
+        player.stabHitbox.body.enable = true
+
         player.once('animationcomplete', () => {
             // check collision when animation is stab-down
             // create semi hitbox?
+            
+            player.direction = 'right'
             this.stateMachine.transition('idle')
         })
+
+        
     }
+
 }
 
 // death: hp is 0, and player is killed

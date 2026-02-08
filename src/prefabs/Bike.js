@@ -1,63 +1,3 @@
-/*class Bike extends Phaser.Physics.Arcade.Sprite {
-    constructor (scene, x, y, texture, frame) {
-        super(scene, x, y, texture, frame)
-
-        // add object to existing scene
-        scene.add.existing(this)    // add to existing
-        scene.physics.add.existing(this) // add physics to existing
-        this.setSize(this.width, this.height/4).setOffset(0, 3 * this.height/4)
-        // speed variable
-        this.BIKE_VELOCITY = 300 // technically acceleration
-        this.BIKE_MAX_VELOCITY = 500
-        this.BIKE_DRAGX = 150
-        this.BIKE_DRAGY = 200
-        this.hp
-
-        // set drag & disable gravity
-        this.setDrag(150, 200)
-        this.body.setAllowGravity(false)
-    }
-
-    create() {
-        
-    }
-
-    update() {
-        // reset velocity
-        // player velocity
-        let playerVector = new Phaser.Math.Vector2(0, 0)
-        let playerDirection = 'down' // temporary
-        
-        
-        if(keyLEFT.isDown) {
-            playerVector.x = -1
-            playerDirection = 'left'
-        } else if(keyRIGHT.isDown) {
-            playerVector.x = 1
-            playerDirection = 'right'
-        }
-
-        if(keyUP.isDown) {
-            playerVector.y = -1
-            playerDirection = 'up'
-        } else if(keyDOWN.isDown) {
-            playerVector.y = 1
-            playerDirection = 'down'
-        }
-
-        playerVector.normalize()
-
-        this.setAcceleration(this.BIKE_VELOCITY * playerVector.x, this.BIKE_VELOCITY * playerVector.y)
-        
-    }
-
-    unseated() {
-        this.setAcceleration(0, 0)
-        
-    }
-}
-*/
-
 class Bike extends Phaser.Physics.Arcade.Sprite {
     constructor (scene, x, y, texture, frame, direction) {
         super(scene, x, y, texture, frame)
@@ -73,10 +13,11 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.bikeSlash = true
 
         this.direction = direction
-        this.hp = 400.0
+        this.hp = 5000.0
+        this.recentHit = false
 
         // physics
-        this.setSize(this.width, this.height/4).setOffset(0 , 2.5 * this.height/4)
+        this.setSize(this.width, this.height/4).setOffset(0 , 2 * this.height/4)
         this.setCollideWorldBounds
         this.setDrag(150, 200)
         this.body.setAllowGravity(false)
@@ -91,17 +32,23 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.slashHitbox.body.enable = false; // Start disabled
         this.hitboxX = 10
         this.hitboxDownY = 25
-        this.hitboxUpY = -10
+        this.hitboxUpY = -25
 
+        // hitbox for the cycle
+        scene.cycleHitbox = scene.physics.add.overlap(this, scene.bullets, (target, bullet) => {
+            if (!this.recentHit) {
+                // period of delay from damage
+                this.recentHit = true
 
-        scene.physics.add.overlap(this.slashHitbox, this.soldiers, (hitbox, enemy) => {
-            if (hitbox.body.enable) {
-                enemy.hp -= 100
-                console.log('success hitttttttttt')
-                hitbox.body.enable = false
+                bullet.lifeTime = 0
+                target.hp -= 25
+                console.log('hit')
+
+                // time of red hit and time of vulnerability
+                scene.damageHit(this, 300, 100)
             }
         })
-
+        
 
 
         // initialize state machine managing hero (in9itial state, possible states, state args[])
@@ -129,7 +76,6 @@ class InactiveBikeState extends State {
 
         // call to the bike to stop all acceleration/reset it
         bike.setAcceleration(0, 0)
-        bike.setVelocity(0, 0)
     }
     // executes every call/frame
     execute(scene, bike) {
