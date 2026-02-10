@@ -48,21 +48,37 @@ class Menu extends Phaser.Scene {
             frameWidth: 32,
             frameHeight: 32
         })
+        this.load.spritesheet('indication-of-bullet', 'nonstatic/IndicationOfAttack-Sheet.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        })
         
         
     }
 
     create() {
-        // animations
+        // animations enemies
         this.anims.create({
             key: 'flying',
             frames: this.anims.generateFrameNumbers('bullet', {
                 start: 0,
                 end: 3
             }),
-            framerate:4,
+            framerate: 4,
             repeat: -1
         })
+        this.anims.create({
+            key: 'indication',
+            frames: this.anims.generateFrameNumbers('indication-of-bullet', {
+                start: 0,
+                end: 5
+            }),
+            duration: 2000,
+            framerate: 1,
+            repeat: 0
+        })
+
+        // animations player
         this.anims.create({
             key: 'empty-bike',
             frames: this.anims.generateFrameNumbers('bike-character', {
@@ -159,8 +175,7 @@ class Menu extends Phaser.Scene {
         this.anims.create({
             key: 'stab-down',
             frames: this.anims.generateFrameNumbers('character-stab', {
-                start: 0,
-                end: 11
+                frames: [0,1,2,3,4,5,6,7,8,9,9,10,10,11,11,12,12]
             }),
             framerate: 0.25,
             repeat: 0

@@ -7,17 +7,24 @@ class SoldierBike extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
     
         // properties
-        this.accelX = 60.0
+        this.accelX = 100.0
         this.accelY = 40.0
+
         this.direction = direction
         this.firing = false
-        this.trackingDist = 20
+        this.trackingDist = 30
+        this.firingRangeY = 150
+        this.firingRangeX = 80
         this.hp = 100.0
         this.target = target
         this.recentHit = false
 
+        // fireOffset
+        this.fireOffsetX = 16
+        this.fireOffsetY = 8
+
         // physics
-        this.setSize(this.width, this.height/4).setOffset(0, 3 * this.height/4)
+        this.setSize(this.width, this.height/4).setOffset(0 , 2 * this.height/3)
         this.setImmovable(true)
         this.body.setAllowGravity(false)
         console.log("called constructor ah")
@@ -69,24 +76,28 @@ class ChaseState extends State {
         // y movement
         // finds distance on the y
         const distanceY = Math.abs(target.y - enemy.y)
+        const farTrackingY = 110
+        const closeTrackingY = 30
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
-        if (enemy.y > target.y && distanceY > 70) {
+        if (enemy.y > target.y && (distanceY < farTrackingY && distanceY + enemy.trackingDist + closeTrackingY > 0)) {
             console.log("soldier: below")
             enemyVector.y = -1
         }
-        else if (enemy.y < target.y && distanceY > 70) {
+        else if (enemy.y < target.y && (distanceY < farTrackingY && distanceY > enemy.trackingDist + closeTrackingY)) {
             console.log("soldier: above")
             enemyVector.y = 1
         }
         
         enemy.body.setAccelerationY(enemy.accelY * enemyVector.y)
         
-        // detection to fire & charge weapon
-        if (distance < 300 && distance > enemy.trackingDist && !enemy.firing) {
+        // detection to fire & charge weapon with animation
+        // checks if enemy is within firing range and if the player has fired already
+        if (distanceX < enemy.firingRangeX && distanceY < enemy.firingRangeY && !enemy.firing) {
             enemy.firing = true
+
             // wait 500ms to fire (if still alive)
-            scene.time.delayedCall(1000, () => {
+            scene.time.delayedCall(500, () => {
                 if (enemy && enemy.active) this.stateMachine.transition('fireSoldier')
             })
         }
@@ -105,11 +116,13 @@ class FireSoldierState extends State {
         // checks status of target, might need to switch
         if (!scene.statusCycle) target = scene.player
 
-        // clear tint if we have one
         scene.fireCall(enemy, target)
-        enemy.firing = false
+            
+        // cooldown
+        scene.time.delayedCall(750, () => {
+            if (enemy && enemy.active) enemy.firing = false
+        })
 
-        // end fire state
         this.stateMachine.transition('chase')
     }
 }
@@ -120,11 +133,7 @@ class DeathBState extends State {
     enter(scene, enemy, target) {
         // clear tint if we have one
         console.log("Death")
-
-        enemy.setActive(false)
-        enemy.setVisible(false)
-        enemy.disableBody(true, true)
-        enemy.destroy()
+        scene.deathAnim(enemy, 300, true)
         
     }
 }

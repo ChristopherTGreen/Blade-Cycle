@@ -14,16 +14,23 @@ class Highway extends Phaser.Scene {
         this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
         this.wallSize = 32
         this.customDepth = 50
-        this.enemyCount = 4
+        this.enemyCount = 2
+
+        // background offset (for camera shakes)
+        this.cameras.main.setZoom(1, 1)
+        const camOffX = 10
+        const camOffY = 10
+        const camRoadOffX = 10
+        const camRoadOffY = 10
 
         // place background
-        this.backgroundStars = this.add.tileSprite(0, 0, this.game.config.width, this.game.config.height, 'background-stars').setOrigin(0, 0)
-        this.backgroundEarth = this.add.tileSprite(0, 0, this.game.config.width, this.game.config.height, 'background-earth').setOrigin(0, 0)
-        this.backgroundCity = this.add.tileSprite(0, 0, this.game.config.width, this.game.config.height, 'background-city').setOrigin(0, 0)
+        this.backgroundStars = this.add.tileSprite(-camOffX, -camOffY, this.game.config.width + camOffX*2, this.roadTop + camOffY*2, 'background-stars').setOrigin(0, 0).setScrollFactor(0.1, 1)
+        this.backgroundEarth = this.add.tileSprite(-camOffX, 0, this.game.config.width + camOffX*2, this.roadTop, 'background-earth').setOrigin(0, 0).setScrollFactor(0.1, 1)
+        this.backgroundCity = this.add.tileSprite(-camOffX, 0, this.game.config.width + camOffX*2, this.roadTop, 'background-city').setOrigin(0, 0).setScrollFactor(0.1, 1)
        
         // place tile sprites
-        this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
-        this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
+        this.highwayRoad = this.add.tileSprite(-camRoadOffX, this.roadTop, this.game.config.width + camOffX*2, 200, 'highway-road').setOrigin(0, 0)
+        this.highwayWall = this.add.tileSprite(-camRoadOffX, this.roadTop - this.wallSize, this.game.config.width + camOffX*2, this.wallSize, 'highway-wall').setOrigin(0, 0)
         this.physics.add.existing(this.highwayWall, true)
 
         // create bullet group
@@ -40,52 +47,49 @@ class Highway extends Phaser.Scene {
         this.bike.body.setCollideWorldBounds(true)
 
         // add player sprite (transparent, but constantly on the bike until jumping off)
-        this.player = new PlayerTest(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'character')
-
-
-        // soldier enemies
-        this.soldiers = this.physics.add.group({
-            classType: SoldierBike,
-            dragX: 20.0,
-            dragY: 14.0,
-            friction: 0.2,
-            collideWorldBounds: true,
-            runChildUpdate: true
-        })
-        this.createSoldierBike(this, 100, this.roadTop + 100)
-        this.createSoldierBike(this, 200, this.roadTop + 200)
-
+        this.player = new Player(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'character')
 
         // create enemies
-        // hoverguard enemies
-        this.guards = this.physics.add.group({
-            classType: HoverGuard,
-            immovable: true,
-            dragX: 50.0,
-            dragY: 50.0,
-            frictionX: 1.0,
+        // soldier enemies
+        this.maxVsoldierX = 100.0
+        this.maxVsoldierY = 50.0
+        this.soldiers = this.physics.add.group({
+            classType: SoldierBike,
+            dragX: 60.0,
+            dragY: 20.0,
+            friction: 0.0,
+            maxVelocityX: this.maxVsoldierX,
+            maxVelocityY: this.maxVsoldierY,
+            collideWorldBounds: false,
             runChildUpdate: true
         })
-        this.createHoverGuard(this, 100, 100)
-        this.createHoverGuard(this, 200, 200)
+        this.createSoldierBike(this, -200, this.roadTop + 100)
+
+
+        // hoverguard enemies
+        this.maxVguardX = 100.0
+        this.maxVguardY = 50.0
+        this.guards = this.physics.add.group({
+            classType: HoverGuard,
+            dragX: 100.0,
+            dragY: 50.0,
+            frictionX: 1.0,
+            maxVelocityX: this.maxVguardX,
+            maxVelocityY: this.maxVguardY,
+            runChildUpdate: true
+        })
+        this.createHoverGuard(this, 100, 200)
 
         
 
 
         // collisions
         this.physics.add.collider(this.bike, this.highwayWall)
-        this.physics.add.collider(this.player, this.guards, null, this.collisionProcessCallback, this)
+        this.physics.add.collider(this.player, this.guards, this.stopMovementCallback, this.collisionProcessCallback, this)
         this.physics.add.collider(this.bike, this.soldiers)
         this.physics.add.collider(this.soldiers, this.highwayWall)
         this.physics.add.collider(this.soldiers, this.soldiers)
         this.physics.add.collider(this.guards, this.guards)
-        
-        // overlap collisions
-        this.playerHitbox = this.physics.add.overlap(this.player, this.bullets, (target, bullet) => {
-            bullet.lifeTime = 0
-            target.hp -= 25
-            console.log('hit')
-        })
 
 
         // key controls
@@ -125,29 +129,42 @@ class Highway extends Phaser.Scene {
     resetEnemies() {
         this.enemyCount += 2
         for (let i = 0; i < this.enemyCount / 2; i++) {
-            this.createSoldierBike(this, 0,  Phaser.Math.Between(this.roadTop, this.game.config.height))
+            this.createSoldierBike(this, Phaser.Math.Between(-300, -64),  Phaser.Math.Between(this.roadTop, this.game.config.height))
         }
         for (let i = 0; i < this.enemyCount / 2; i++) {
-            this.createHoverGuard(this, 0,  Phaser.Math.Between(0, this.roadTop))
+            this.createHoverGuard(this, Phaser.Math.Between(-200, -100),  Phaser.Math.Between(0, this.roadTop))
 
         }
         
     }
 
     // bullet call
+    // optional: transition will bring the state machine into new state
     fireCall(source, target) {
         const bullet = this.bullets.get()
         bullet.enableBody(true, true)
+
+        bullet.firingSource = source
         bullet.fireBullet(this, source, target)
     }
 
-    // collision only works down
+    // guard callbacks
+    // collision check which resets status after
+    // collision only works when going down and can be passed through
     collisionProcessCallback(obj1, obj2) {
-        if(obj1.y < obj2.y-10 && !keyDOWN.isDown) {
+        if(obj2.y - 10 > obj1.y && !keyDOWN.isDown) {
+            obj2.body.setVelocity(0, 0)
+            obj2.body.setAcceleration(0, 0)
             return true
         }
+        obj2.body.setImmovable(false)
         return false
     }
+    // collision will set the guard to zero velocity, and enables immovable
+    stopMovementCallback(obj1, obj2) {
+        obj2.body.setImmovable(true)
+    }
+
 
     // hover guard functions
     // creates hover guard enemy
@@ -155,14 +172,18 @@ class Highway extends Phaser.Scene {
         this.hoverGuard = new HoverGuard(scene, x, y, 'hover-guard', 0, 'right', this.bike)
         
         this.guards.add(this.hoverGuard)
+
+        // initial swing into the scene
+        this.hoverGuard.setVelocityX(50)
     }
 
-    // hoverguard ai, chases the bike
+    // hoverguard ai, calls all children to chase the bike and reset depth
     callHoverGuardAI() {
-        this.guards.children.iterate(guard => {
+        const guardList = this.guards.getChildren()
+        guardList.forEach(guard => {
             if (guard && guard.active && guard.guardFSM) {
                 guard.guardFSM.step()
-                guard.setDepth(this.customDepth + guard.y)
+                guard.setDepth(this.customDepth + guard.y + -30)
             }
         })
     }
@@ -173,14 +194,18 @@ class Highway extends Phaser.Scene {
         this.soldierBike = new SoldierBike(scene, x, y, 'soldier-bike', 0, 'right', this.bike)
 
         this.soldiers.add(this.soldierBike)
+
+        // initial swing into the scene
+        this.soldierBike.setVelocityX(75)
     }
 
-    // soldier bike ai, chases the bike closely
+    // soldier bike ai, calls all children to chase the bike and reset depth
     callSoldierBikeAI() {
         const soldierList = this.soldiers.getChildren() // safer method than before
         soldierList.forEach(soldier => {
             if (soldier && soldier.active && soldier.soldierFSM) {
                 soldier.soldierFSM.step()
+                if (soldier.x > 50) soldier.body.setCollideWorldBounds(true)
                 soldier.setDepth(this.customDepth + soldier.y)
             }
         })
@@ -189,6 +214,7 @@ class Highway extends Phaser.Scene {
     // tweens for damage and after-damage hits
     // flashing red hit for damage (optional, dependings no webgl or canvas)
     damageHit(source, redTime, time){
+        this.cameras.main.shake(200, 0.003)
         this.tweens.add({
             targets: source,
             tint: 0xff0000,
@@ -215,6 +241,25 @@ class Highway extends Phaser.Scene {
             onComplete: () => {
                 source.alpha = 1
                 source.recentHit = false
+            }  
+        })
+    }
+
+    // death/disappear effect
+    deathAnim(source, time, destroy){
+        this.tweens.add({
+            targets: source,
+            tint: 0xff0000,
+            alpha: 0,
+            duration: time,
+            ease: 'Linear',
+            onComplete: () => {
+                this.cameras.main.shake(200, 0.004)
+                if (destroy) this.time.delayedCall(10, () => {
+                    source.setActive(false)
+                    source.setVisible(false)
+                    source.destroy()
+                })
             }  
         })
     }

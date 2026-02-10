@@ -17,7 +17,8 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.recentHit = false
 
         // physics
-        this.setSize(this.width, this.height/4).setOffset(0 , 2 * this.height/4)
+        const sizeDiff = 16
+        this.setSize(this.width - sizeDiff, this.height/4).setOffset(sizeDiff/2, 2 * this.height/4)
         this.setCollideWorldBounds
         this.setDrag(150, 200)
         this.body.setAllowGravity(false)
@@ -46,6 +47,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
 
                 // time of red hit and time of vulnerability
                 scene.damageHit(this, 300, 100)
+                scene.damageHit(scene.player, 300, 100)
             }
         })
         
@@ -79,7 +81,6 @@ class InactiveBikeState extends State {
     }
     // executes every call/frame
     execute(scene, bike) {
-        
 
         if (scene.statusCycle) {
             console.log('transition')
@@ -192,17 +193,22 @@ class SlashState extends State {
         bike.bikeSlash = false
         bike.anims.play(`slash-${bike.direction}`)
 
-        // damage hitbox
-        bike.slashHitbox.x = bike.x + bike.hitboxX
-        bike.slashHitbox.y = bike.y + ((bike.direction == 'up') ? bike.hitboxUpY : bike.hitboxDownY)
-        bike.slashHitbox.body.enable = true
+        // delayed damage for more effect
+        scene.time.delayedCall(200, () => {
+            // damage hitbox
+            bike.slashHitbox.x = bike.x + bike.hitboxX
+            bike.slashHitbox.y = bike.y + ((bike.direction == 'up') ? bike.hitboxUpY : bike.hitboxDownY)
+
+            bike.slashHitbox.body.enable = true
+            
+        })
 
         bike.once('animationcomplete', () => {
             // check collision when animation is stab-down
             // create semi hitbox?
             bike.anims.play(`riding-bike`)
             // cooldown
-            scene.time.delayedCall(1000, () => {
+            scene.time.delayedCall(600, () => {
                 bike.bikeSlash = true
                 bike.slashHitbox.body.enable = false
             })

@@ -1,5 +1,5 @@
 class Bullet extends Phaser.Physics.Arcade.Sprite {
-    constructor (scene, x, y, texture, frame) {
+    constructor (scene, x, y, source) {
         super(scene, x, y, 'bullet', 0)
 
         // add object to existing scene
@@ -9,36 +9,59 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         // properties
         this.speed = 100
         this.lifeTime = 10000
-        this.setSize(4, 4)
+        this.setSize(2, 2)
+        this.setDepth(1000)
         this.damagePossible = true
+        this.targetting = true
+        if (source !== null) this.firingSource = source
+        else this.firingSource = null
 
         this._temp = new Phaser.Math.Vector2()
     }
 
+    // update is called automatically
     update(time, delta) {
         this.lifeTime -= delta
 
+        if (this.firingSource !== null) this.setPosition(this.firingSource.x + this.firingSource.fireOffsetX, this.firingSource.y + this.firingSource.fireOffsetY)
+
         if (this.lifeTime <= 0) {
+            this.lifeTime = 0
             this.setActive(false)
             this.setVisible(false)
             this.disableBody(true, true)
         }
     }
 
+    // initates a charging animation, and upon completion, fires a bullet, returning the specific bullet which fired
+    // each source must have a fireOffsetX and Y
+    // need firingSource in order to make sure source is still alive when fired
+    // optional: can have the indicator latch onto the source if it has a firingSource
     fireBullet(scene, source, target) { 
         if (source) { 
-            this.lifeTime = 5000
+            this.lifeTime = 10000
 
+            
             this.body.enable
             this.setActive(true)
             this.setVisible(true)
-            let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(source.x, source.y, target.x, target.y))
+            let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(source.x + source.fireOffsetX, source.y + source.fireOffsetY, target.x, target.y))
             this.setAngle(angle)
-            this.setPosition(source.x, source.y)
-            this.body.reset(source.x, source.y)
+            this.setPosition(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
+            this.body.reset(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
 
-            this.scene.physics.velocityFromAngle(angle, this.speed, this.body.velocity)
-            this.anims.play('flying', true)
+            this.anims.play('indication')
+            this.once('animationcomplete', () => {      
+                this.setPosition(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
+                this.body.reset(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
+
+                scene.physics.velocityFromAngle(angle, this.speed, this.body.velocity)
+                this.anims.play('flying', true)
+
+                // optional
+                // position lock
+                if (this.firingSource !== null) this.firingSource = null
+            })
         }
     }
     

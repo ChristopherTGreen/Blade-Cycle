@@ -6,9 +6,10 @@ let config = {
     type: Phaser.AUTO,
     width: 854,
     height: 480,
+    backgroundColor: '#FFFF66',
     scale: {
         zoom: 1
-
+        
     },
     render: {
         pixelArt: true,
