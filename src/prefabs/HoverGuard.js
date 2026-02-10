@@ -132,7 +132,6 @@ class FireState extends State {
         // checks status of target, might need to switch
         if (!scene.statusCycle) target = scene.player
 
-
         scene.fireCall(enemy, target)
             
         // cooldown
@@ -141,7 +140,6 @@ class FireState extends State {
         })
 
  
-            
         this.stateMachine.transition('patrol')
     }
 }

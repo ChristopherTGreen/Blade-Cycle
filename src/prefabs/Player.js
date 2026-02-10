@@ -105,7 +105,6 @@ class InactiveState extends State {
             player.setAlpha(1.0)
             player.body.setAllowGravity(true)
             player.initialDist = false
-
             
             this.stateMachine.transition('jump')
         }

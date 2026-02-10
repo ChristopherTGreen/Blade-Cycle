@@ -134,6 +134,5 @@ class DeathBState extends State {
         // clear tint if we have one
         console.log("Death")
         scene.deathAnim(enemy, 300, true)
-        
     }
 }

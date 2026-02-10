@@ -23,7 +23,6 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.setDrag(150, 200)
         this.body.setAllowGravity(false)
         console.log("called constructor play")
-        
 
         // bike slash damageboxes
         this.hitboxSizeV = 20

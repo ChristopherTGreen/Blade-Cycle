@@ -80,9 +80,6 @@ class Highway extends Phaser.Scene {
         })
         this.createHoverGuard(this, 100, 200)
 
-        
-
-
         // collisions
         this.physics.add.collider(this.bike, this.highwayWall)
         this.physics.add.collider(this.player, this.guards, this.stopMovementCallback, this.collisionProcessCallback, this)

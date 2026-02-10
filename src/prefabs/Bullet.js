@@ -19,6 +19,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this._temp = new Phaser.Math.Vector2()
     }
 
+    
     // update is called automatically
     update(time, delta) {
         this.lifeTime -= delta
