@@ -6,6 +6,7 @@ let config = {
     type: Phaser.AUTO,
     width: 854,
     height: 480,
+    parent: 'Blade Cycle',
     backgroundColor: '#FFFF66',
     scale: {
         zoom: 1
