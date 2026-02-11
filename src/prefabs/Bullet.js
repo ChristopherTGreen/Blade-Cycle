@@ -11,8 +11,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.lifeTime = 10000
         this.setSize(2, 2)
         this.setDepth(1000)
-        this.damagePossible = true
-        this.targetting = true
+        this.damagePossible = false
         if (source !== null) this.firingSource = source
         else this.firingSource = null
 
@@ -40,10 +39,11 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
     // optional: can have the indicator latch onto the source if it has a firingSource
     fireBullet(scene, source, target) { 
         if (source) { 
+            // initial reset for this bullet (issues with all sharing same variable for some reason)
             this.lifeTime = 10000
+            this.damagePossible = false
 
-            
-            this.body.enable
+            this.body.enable    
             this.setActive(true)
             this.setVisible(true)
             let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(source.x + source.fireOffsetX, source.y + source.fireOffsetY, target.x, target.y))
@@ -52,7 +52,18 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
             this.body.reset(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
 
             this.anims.play('indication')
-            this.once('animationcomplete', () => {      
+            this.once('animationcomplete', () => {
+                scene.sound.play('fire-sound')
+                // return if source is destroyed
+                if (!(source && source.active && source.body)) {
+                    this.lifeTime = 0
+                    return
+                }
+
+                // sets damage to possible, since charging state has ended
+                this.damagePossible = true
+                
+                // once animation completed, velocity on and new animation plays while flying
                 this.setPosition(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
                 this.body.reset(source.x + source.fireOffsetX, source.y + source.fireOffsetY)
 

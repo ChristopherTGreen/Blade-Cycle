@@ -4,6 +4,11 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
+        // game settings
+        game.settings = {
+            audio: 100
+        }
+
         // load the visuals
         this.load.path = './assets/'
 
@@ -53,7 +58,16 @@ class Menu extends Phaser.Scene {
             frameHeight: 32
         })
         
-        
+        // load audio
+        this.load.audio('stab-sound', 'audio/SoundEffects/stab.mp3')
+        this.load.audio('bike-drive-sound', 'audio/SoundEffects/drive.wav')
+        this.load.audio('death-sound', 'audio/SoundEffects/death2.wav')
+        this.load.audio('slash-sound', 'audio/SoundEffects/slash.mp3')
+        this.load.audio('alarm-sound', 'audio/SoundEffects/alarm.wav')
+        this.load.audio('fire-sound', 'audio/SoundEffects/fire.wav')
+        this.load.audio('jump-sound', 'audio/SoundEffects/jump.wav')
+        this.load.audio('hit-sound', 'audio/SoundEffects/hit.wav')
+        this.load.audio('wave-sound', 'audio/SoundEffects/wave.wav')
     }
 
     create() {
@@ -175,7 +189,7 @@ class Menu extends Phaser.Scene {
         this.anims.create({
             key: 'stab-down',
             frames: this.anims.generateFrameNumbers('character-stab', {
-                frames: [0,1,2,3,4,5,6,7,8,9,9,10,10,11,11,12,12]
+                frames: [0,1,2,3,4,5,6,7,8,8,9,9,10,10,11,11]
             }),
             framerate: 0.25,
             repeat: 0
@@ -200,7 +214,14 @@ class Menu extends Phaser.Scene {
 
         
         this.temp_bike = this.physics.add.image(0, game.config.height/2 + game.config.height/4, 'bike-character', 0)
-        this.time.delayedCall(4000, () => {
+        
+        this.sound.play('alarm-sound', {
+            volume: game.settings.volume,
+            loop: true,
+            pan: -10
+        })
+        this.time.delayedCall(6000, () => {
+            this.sound.stopAll('alarm-sound')
             this.scene.start('highwayScene')
         })
     }

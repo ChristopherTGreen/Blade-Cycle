@@ -129,10 +129,10 @@ class FireSoldierState extends State {
 
 // death: hp is 0, and bike is destroyed and deleted
 class DeathBState extends State {
-    // executes every call/frame
+    // death plays on entry
     enter(scene, enemy, target) {
         // clear tint if we have one
         console.log("Death")
-        scene.deathAnim(enemy, 300, true)
+        scene.deathAnim(enemy, 500, true)
     }
 }

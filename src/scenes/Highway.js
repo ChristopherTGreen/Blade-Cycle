@@ -42,7 +42,7 @@ class Highway extends Phaser.Scene {
         
 
         // add bike sprite
-        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 'right')
+        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 0, 'right')
         // set initial bike bounds
         this.bike.body.setCollideWorldBounds(true)
 
@@ -88,6 +88,17 @@ class Highway extends Phaser.Scene {
         this.physics.add.collider(this.soldiers, this.soldiers)
         this.physics.add.collider(this.guards, this.guards)
 
+        // sound assignments
+        this.soundDeath = this.sound.add('death-sound', {
+            volume: game.settings.volume
+        })
+        this.soundSlash = this.sound.add('slash-sound', {
+            volume: game.settings.volume
+        })
+        this.soundStab = this.sound.add('stab-sound', {
+            volume: game.settings.volume
+        })
+
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -124,6 +135,7 @@ class Highway extends Phaser.Scene {
 
     // if enemies are out, create new ones
     resetEnemies() {
+        this.sound.play('wave-sound')
         this.enemyCount += 2
         for (let i = 0; i < this.enemyCount / 2; i++) {
             this.createSoldierBike(this, Phaser.Math.Between(-300, -64),  Phaser.Math.Between(this.roadTop, this.game.config.height))
@@ -212,6 +224,7 @@ class Highway extends Phaser.Scene {
     // flashing red hit for damage (optional, dependings no webgl or canvas)
     damageHit(source, redTime, time){
         this.cameras.main.shake(200, 0.003)
+        this.sound.play('hit-sound')
         this.tweens.add({
             targets: source,
             tint: 0xff0000,
@@ -223,7 +236,7 @@ class Highway extends Phaser.Scene {
                 source.alpha = 1
                 source.clearTint()
                 this.safeTimeHit(source, time)
-            } 
+            }
         })
     }
 
@@ -244,6 +257,7 @@ class Highway extends Phaser.Scene {
 
     // death/disappear effect
     deathAnim(source, time, destroy){
+        this.soundDeath.play()
         this.tweens.add({
             targets: source,
             tint: 0xff0000,

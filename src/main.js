@@ -22,8 +22,11 @@ let config = {
             gravity: {
                 y: 0
             },
-            debug: false,
+            debug: true,
         }
+    },
+    audio: {
+        enableWebAudio: true
     },
     
     scene: [ Menu, Highway ]

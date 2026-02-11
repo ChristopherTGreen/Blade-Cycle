@@ -30,7 +30,7 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
         this.body.setAllowGravity(false)
         console.log("called constructor")
 
-        // hitbox for the slash, causes damage
+        // hitbox for the stab, causes damage
         scene.physics.add.overlap(scene.player.stabHitbox, this, (hitbox, enemy) => {
             if (hitbox.body.enable && !enemy.recentHit) {
                 enemy.hp -= 25.0
@@ -39,7 +39,7 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
                 enemy.recentHit = true
 
                 // time of red hit and time of vulnerability
-                scene.damageHit(enemy, 25, 25)
+                scene.damageHit(enemy, 50, 25)
             }
         })
 
@@ -146,11 +146,11 @@ class FireState extends State {
 
 // death: hp is 0, and guard is destroyed and deleted
 class DeathState extends State {
-    // executes every call/frame
-    execute(scene, enemy, target) {
+    // death plays on entry
+    enter(scene, enemy, target) {
         // clear tint if we have one
         console.log("Death")
 
-        scene.deathAnim(enemy, 300, true)
+        scene.deathAnim(enemy, 500, true)
     }
 }

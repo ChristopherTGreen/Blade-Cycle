@@ -8,7 +8,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     
         // properties
         this.accelX = 300.0 // maybe make velocity for more control
-        this.accelY = -400.0
+        this.accelY = -350.0
         this.maxAccel = 300.0
 
         this.direction = direction
@@ -39,9 +39,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.hitboxX = 10
         this.hitboxDownY = 10
 
+        // jump sound
+        this.jumpSound = scene.sound.add('jump-sound', {
+            volume: game.settings.volume
+        })
+
         // hitbox for the player
         scene.playerHitbox = scene.physics.add.overlap(this, scene.bullets, (target, bullet) => {
-            if (!this.recentHit) {
+            if (!this.recentHit && bullet.damagePossible) {
                 // period of delay from damage
                 this.recentHit = true
 
@@ -96,8 +101,9 @@ class InactiveState extends State {
 
         if (keySPACE.isDown) {
             console.log('transition')
-            player.x = scene.bike.x
-            player.y = scene.bike.y
+            // jump sound
+            player.jumpSound.play()
+
             player.body.setVelocityX(scene.bike.body.velocity.x)
             player.body.setVelocityY(player.accelY - 100)
             scene.statusCycle = false
@@ -105,6 +111,10 @@ class InactiveState extends State {
             player.setAlpha(1.0)
             player.body.setAllowGravity(true)
             player.initialDist = false
+
+            // safehitbox for transition, less annoying gameplay
+            player.recentHit = true
+            scene.safeTimeHit(player, 50, true)
             
             this.stateMachine.transition('jump')
         }
@@ -137,6 +147,9 @@ class IdleState extends State {
             if(keySPACE.isDown) {
                 player.body.setVelocityY(player.accelY)
                 player.coyote = false
+
+                // jump sound
+                player.jumpSound.play()
             }
             this.stateMachine.transition('jump')
         }
@@ -188,6 +201,9 @@ class MoveState extends State {
             if(keySPACE.isDown) {
                 player.body.setVelocityY(player.accelY)
                 player.coyote = false
+
+                // jump sound
+                player.jumpSound.play()
             }
             this.stateMachine.transition('jump')
         }
@@ -233,6 +249,9 @@ class JumpState extends State {
         if(keySPACE.isDown && player.coyote) {
             player.body.setVelocityY(player.accelY)
             player.coyote = false
+            
+            // jump sound
+            player.jumpSound.play()
         }
         if (player.coyote) scene.time.delayedCall(player.coyoteTime, () => {
             player.coyote = false
@@ -283,6 +302,7 @@ class StabState extends State {
         player.setAcceleration(0, 0)
         player.setVelocity(0, 0)
         player.anims.play(`stab-down`)
+        scene.soundStab.play()
 
         
         // delayed damage for more effect
@@ -305,8 +325,8 @@ class StabState extends State {
 
 // death: hp is 0, and player is killed
 class DeathPState extends State {
-    // executes every call/frame
-    execute(scene, player) {
+    // upon death plays audio once
+    enter(scene, player) {
         console.log('death')
         // clear tint if we have one
 

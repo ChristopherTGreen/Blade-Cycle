@@ -36,7 +36,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
 
         // hitbox for the cycle
         scene.cycleHitbox = scene.physics.add.overlap(this, scene.bullets, (target, bullet) => {
-            if (!this.recentHit) {
+            if (!this.recentHit && bullet.damagePossible) {
                 // period of delay from damage
                 this.recentHit = true
 
@@ -50,7 +50,13 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
             }
         })
         
-
+        // sound assignments
+        this.drivingSound = scene.sound.add('bike-drive-sound', {
+            volume: game.settings.volume,
+            loop: true,
+            rate: 1,
+            detune: 0
+        })
 
         // initialize state machine managing hero (in9itial state, possible states, state args[])
         scene.bikeFSM = new StateMachine('idleBike', {
@@ -87,6 +93,10 @@ class InactiveBikeState extends State {
             
             bike.body.setVelocityX(scene.bike.body.velocity.x)
             scene.cycleHitbox.active = true
+
+            // safehitbox for transition, less annoying gameplay
+            bike.recentHit = true
+            scene.safeTimeHit(bike, 50, true)
     
             this.stateMachine.transition('idleBike')
         }
@@ -98,12 +108,7 @@ class InactiveBikeState extends State {
 // cases: 
 //          player is still
 class IdleBikeState extends State {
-    // enter initial call
-    enter (scene, bike) {
-        
-    }
-
-    // executes every call/frame
+// executes every call/frame
     execute(scene, bike) {
         console.log('idle Bike')
         bike.direction = 'right'
@@ -136,6 +141,13 @@ class IdleBikeState extends State {
 // cases: 
 //          player is on the ground
 class MoveBikeState extends State {
+    // initial call, starts playing moving sound
+    enter(scene, bike) {
+        scene.tweens.killTweensOf(bike.drivingSound) // kills current sounds
+        bike.drivingSound.play()
+        bike.drivingSound.setVolume(0.9)
+    }
+
     // executes every call/frame
     execute(scene, bike) {
         let playerVector = new Phaser.Math.Vector2(0, 0)
@@ -162,9 +174,16 @@ class MoveBikeState extends State {
 
         bike.setAcceleration(bike.accelX * playerVector.x, bike.accelY * playerVector.y)
         //bike.anims.play(`move-${bike.direction}`)
+        // sound detune based on velocity
+        bike.drivingSound.setDetune(bike.body.velocity.length()/2 - 50)
+        console.log(bike.drivingSound.detune)
+
 
         // check if the player is static relative to body
-        if (bike.body.accelerationX == 0) this.stateMachine.transition('idleBike')
+        if (bike.body.velocity.length() == 0){
+            this.stateMachine.transition('idleBike')
+            return
+        }
 
         // slash up or down
         if (keyARDOWN.isDown && bike.bikeSlash) {
@@ -181,7 +200,24 @@ class MoveBikeState extends State {
             this.stateMachine.transition('deathBike')
         }
 
-        if (!scene.statusCycle) this.stateMachine.transition('inactiveBike')
+        if (!scene.statusCycle) {
+            this.stateMachine.transition('inactiveBike')
+        }
+    }
+
+    // when leaving scene, stop audio
+    exit(scene, bike) {
+        scene.tweens.killTweensOf(bike.drivingSound) // kills current sounds
+        // transition for audio, settings may need to be changed
+        scene.tweens.add({ 
+            targets: bike.drivingSound,
+            volume: 0,
+            duration: 500, 
+            onComplete: () => {
+                bike.drivingSound.stop()
+                bike.drivingSound.setVolume(1)
+            }
+        })
     }
 }
 
@@ -191,6 +227,7 @@ class SlashState extends State {
         bike.setAcceleration(0,0)
         bike.bikeSlash = false
         bike.anims.play(`slash-${bike.direction}`)
+        scene.soundSlash.play()
 
         // delayed damage for more effect
         scene.time.delayedCall(200, () => {
@@ -206,10 +243,10 @@ class SlashState extends State {
             // check collision when animation is stab-down
             // create semi hitbox?
             bike.anims.play(`riding-bike`)
+            bike.slashHitbox.body.enable = false
             // cooldown
             scene.time.delayedCall(600, () => {
                 bike.bikeSlash = true
-                bike.slashHitbox.body.enable = false
             })
 
 
@@ -220,13 +257,15 @@ class SlashState extends State {
 
 // death: hp is 0, and player is killed
 class DeathBikeState extends State {
-    // executes every call/frame
-    execute(scene, bike) {
+    // upon death plays audio once
+    enter(scene, bike) {
         console.log('death')
         // clear tint if we have one
-        console.log("Death")
-        scene.scene.restart()
-        // delete (wip)
-        this.stateMachine.transition('idleBike')
+
+        scene.deathAnim(bike, 300, false)
+        
+        scene.time.delayedCall(400, () => {
+            scene.scene.restart()
+        })
     }
 }
