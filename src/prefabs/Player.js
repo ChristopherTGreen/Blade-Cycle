@@ -32,7 +32,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         // stab damageboxes
         this.hitboxSizeV = 30
-        this.stabHitbox = scene.add.zone(0, 0, 14, this.hitboxSizeV);
+        this.stabHitbox = scene.add.zone(0, 0, 18, this.hitboxSizeV);
         scene.physics.add.existing(this.stabHitbox);
         this.stabHitbox.body.setAllowGravity(false);
         this.stabHitbox.body.enable = false; // Start disabled
@@ -333,6 +333,7 @@ class DeathPState extends State {
         scene.deathAnim(player, 300, false)
         
         scene.time.delayedCall(400, () => {
+            scene.sound.stopAll()
             scene.scene.restart()
         })
     }

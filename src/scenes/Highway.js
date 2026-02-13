@@ -43,8 +43,6 @@ class Highway extends Phaser.Scene {
 
         // add bike sprite
         this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 0, 'right')
-        // set initial bike bounds
-        this.bike.body.setCollideWorldBounds(true)
 
         // add player sprite (transparent, but constantly on the bike until jumping off)
         this.player = new Player(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'character')
@@ -99,6 +97,13 @@ class Highway extends Phaser.Scene {
             volume: game.settings.volume
         })
 
+        // music
+        const music = this.sound.add('music', {
+            volume: game.settings.music,
+            loop: true
+        })
+        music.play()
+
 
         // key controls
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
@@ -142,7 +147,6 @@ class Highway extends Phaser.Scene {
         }
         for (let i = 0; i < this.enemyCount / 2; i++) {
             this.createHoverGuard(this, Phaser.Math.Between(-200, -100),  Phaser.Math.Between(0, this.roadTop))
-
         }
         
     }

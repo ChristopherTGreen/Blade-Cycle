@@ -29,7 +29,7 @@ let config = {
         enableWebAudio: true
     },
     
-    scene: [ Menu, Highway ]
+    scene: [ Menu, Intro, Highway ]
 }
 
 let game = new Phaser.Game(config)

@@ -19,7 +19,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         // physics
         const sizeDiff = 16
         this.setSize(this.width - sizeDiff, this.height/4).setOffset(sizeDiff/2, 2 * this.height/4)
-        this.setCollideWorldBounds
+        this.setCollideWorldBounds(true)
         this.setDrag(150, 200)
         this.body.setAllowGravity(false)
         console.log("called constructor play")
@@ -113,7 +113,7 @@ class IdleBikeState extends State {
         console.log('idle Bike')
         bike.direction = 'right'
         // movement transition
-        if(keyLEFT.isDown || keyRIGHT.isDown) {
+        if(keyLEFT.isDown || keyRIGHT.isDown || keyDOWN.isDown || keyUP.isDown) {
             this.stateMachine.transition('moveBike')
         }
 
@@ -176,7 +176,6 @@ class MoveBikeState extends State {
         //bike.anims.play(`move-${bike.direction}`)
         // sound detune based on velocity
         bike.drivingSound.setDetune(bike.body.velocity.length()/2 - 50)
-        console.log(bike.drivingSound.detune)
 
 
         // check if the player is static relative to body
@@ -265,6 +264,7 @@ class DeathBikeState extends State {
         scene.deathAnim(bike, 300, false)
         
         scene.time.delayedCall(400, () => {
+            scene.sound.stopAll()
             scene.scene.restart()
         })
     }

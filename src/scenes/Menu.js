@@ -6,7 +6,8 @@ class Menu extends Phaser.Scene {
     preload() {
         // game settings
         game.settings = {
-            audio: 100
+            volume: 1,
+            music: 0.9
         }
 
         // load the visuals
@@ -59,15 +60,19 @@ class Menu extends Phaser.Scene {
         })
         
         // load audio
-        this.load.audio('stab-sound', 'audio/SoundEffects/stab.mp3')
-        this.load.audio('bike-drive-sound', 'audio/SoundEffects/drive.wav')
-        this.load.audio('death-sound', 'audio/SoundEffects/death2.wav')
-        this.load.audio('slash-sound', 'audio/SoundEffects/slash.mp3')
-        this.load.audio('alarm-sound', 'audio/SoundEffects/alarm.wav')
-        this.load.audio('fire-sound', 'audio/SoundEffects/fire.wav')
-        this.load.audio('jump-sound', 'audio/SoundEffects/jump.wav')
-        this.load.audio('hit-sound', 'audio/SoundEffects/hit.wav')
-        this.load.audio('wave-sound', 'audio/SoundEffects/wave.wav')
+        this.load.path = './assets/audio/'
+        this.load.audio('stab-sound', 'SoundEffects/stab.mp3')
+        this.load.audio('bike-drive-sound', 'SoundEffects/drive.wav')
+        this.load.audio('death-sound', 'SoundEffects/death2.wav')
+        this.load.audio('slash-sound', 'SoundEffects/slash.mp3')
+        this.load.audio('alarm-sound', 'SoundEffects/alarm.wav')
+        this.load.audio('fire-sound', 'SoundEffects/fire.wav')
+        this.load.audio('jump-sound', 'SoundEffects/jump.wav')
+        this.load.audio('hit-sound', 'SoundEffects/hit.wav')
+        this.load.audio('wave-sound', 'SoundEffects/wave.wav')
+
+        // load music
+        this.load.audio('music', 'Music/blade-cycle.mp3')
     }
 
     create() {
@@ -220,9 +225,9 @@ class Menu extends Phaser.Scene {
             loop: true,
             pan: -10
         })
-        this.time.delayedCall(6000, () => {
+        this.time.delayedCall(3000, () => {
             this.sound.stopAll('alarm-sound')
-            this.scene.start('highwayScene')
+            this.scene.start('introScene')
         })
     }
 
