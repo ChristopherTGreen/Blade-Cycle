@@ -7,7 +7,7 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
     
         // properties
-        this.accelX = 100.0
+        this.accelX = 125.0
         this.accelY = 50.0
 
         this.direction = direction
@@ -113,7 +113,7 @@ class PatrolState extends State {
         if (distance < enemy.firingRange && distance > enemy.firingLimitR && !enemy.firing) {
             enemy.firing = true
             // wait 500ms to fire (if still alive)
-            scene.time.delayedCall(2000, () => {
+            scene.time.delayedCall(1500, () => {
                 if (enemy && enemy.active) this.stateMachine.transition('fire')
             })
         }
@@ -135,7 +135,7 @@ class FireState extends State {
         scene.fireCall(enemy, target)
             
         // cooldown
-        scene.time.delayedCall(1000, () => {
+        scene.time.delayedCall(800, () => {
             if (enemy && enemy.active) enemy.firing = false
         })
 

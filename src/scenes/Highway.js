@@ -17,8 +17,8 @@ class Highway extends Phaser.Scene {
         this.bikeCount = 2
         this.guardCount = 0
         this.waveCount = 1
-        this.maxHp = 300
-        this.givenHp = 300
+        this.maxHp = 200
+        this.givenHp = 200
         this.score = 0
 
         // background offset (for camera shakes)
@@ -55,8 +55,8 @@ class Highway extends Phaser.Scene {
 
         // create enemies
         // soldier enemies
-        this.maxVsoldierX = 100.0
-        this.maxVsoldierY = 50.0
+        this.maxVsoldierX = 125.0
+        this.maxVsoldierY = 75.0
         this.soldiers = this.physics.add.group({
             classType: SoldierBike,
             dragX: 60.0,
@@ -73,8 +73,8 @@ class Highway extends Phaser.Scene {
 
 
         // hoverguard enemies
-        this.maxVguardX = 100.0
-        this.maxVguardY = 50.0
+        this.maxVguardX = 125.0
+        this.maxVguardY = 75.0
         this.guards = this.physics.add.group({
             classType: HoverGuard,
             dragX: 100.0,
@@ -216,7 +216,7 @@ class Highway extends Phaser.Scene {
         this.waveText.setText(`Wave: ${Math.floor(this.waveCount)}`)
 
         // health heal
-        const heal = 100
+        const heal = 50
 
         if (this.bike.hp + heal >= this.maxHp || this.player.hp + heal >= this.maxHp) {
             this.bike.hp = this.maxHp

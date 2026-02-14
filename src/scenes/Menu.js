@@ -20,7 +20,7 @@ class Menu extends Phaser.Scene {
                 start: 0,
                 end: 5
             }),
-            duration: 2000,
+            duration: 1250,
             framerate: 1,
             repeat: 0
         })
