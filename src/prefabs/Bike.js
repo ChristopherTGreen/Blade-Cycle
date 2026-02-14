@@ -1,5 +1,5 @@
 class Bike extends Phaser.Physics.Arcade.Sprite {
-    constructor (scene, x, y, texture, frame, direction) {
+    constructor (scene, x, y, texture, frame, direction, hp) {
         super(scene, x, y, texture, frame)
 
         // add object to existing scene
@@ -13,7 +13,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.bikeSlash = true
 
         this.direction = direction
-        this.hp = 500.0
+        this.hp = hp
         this.recentHit = false
 
         // physics
@@ -42,6 +42,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
 
                 bullet.lifeTime = 0
                 target.hp -= 25
+                scene.healthText.setText(`Health: ${Math.floor(target.hp)}`)
                 console.log('hit')
 
                 // time of red hit and time of vulnerability
@@ -52,7 +53,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         
         // sound assignments
         this.drivingSound = scene.sound.add('bike-drive-sound', {
-            volume: game.settings.volume,
+            volume: game.settings.volume*0.9,
             loop: true,
             rate: 1,
             detune: 0
@@ -145,7 +146,6 @@ class MoveBikeState extends State {
     enter(scene, bike) {
         scene.tweens.killTweensOf(bike.drivingSound) // kills current sounds
         bike.drivingSound.play()
-        bike.drivingSound.setVolume(0.9)
     }
 
     // executes every call/frame
@@ -229,7 +229,7 @@ class SlashState extends State {
         scene.soundSlash.play()
 
         // delayed damage for more effect
-        scene.time.delayedCall(200, () => {
+        scene.time.delayedCall(250, () => {
             // damage hitbox
             bike.slashHitbox.x = bike.x + bike.hitboxX
             bike.slashHitbox.y = bike.y + ((bike.direction == 'up') ? bike.hitboxUpY : bike.hitboxDownY)
@@ -261,11 +261,23 @@ class DeathBikeState extends State {
         console.log('death')
         // clear tint if we have one
 
-        scene.deathAnim(bike, 300, false)
-        
+        scene.deathAnim(bike, 400, false)
+        bike.disableBody(true, false)
+
         scene.time.delayedCall(400, () => {
-            scene.sound.stopAll()
-            scene.scene.restart()
+            scene.restartButton.setVisible(true)
+            scene.restartButton.setInteractive()
+            scene.menuContain.setVisible(true)
+            scene.menuBg.setInteractive()
+            scene.highScoreText.setPosition(game.config.width/2.4, game.config.height/2)
+
+            if (game.settings.highScore < scene.score) {
+                game.settings.highScore = scene.score
+                scene.highScoreText.setPosition(game.config.width/3, game.config.height/2)
+                scene.highScoreText.setText(`New Highscore: ${game.settings.highScore}`)
+            }
         })
+
+        
     }
 }

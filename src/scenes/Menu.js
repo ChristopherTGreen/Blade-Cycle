@@ -4,78 +4,6 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
-        // game settings
-        game.settings = {
-            volume: 1,
-            music: 0.9
-        }
-
-        // load the visuals
-        this.load.path = './assets/'
-
-        // load assets
-        this.load.image('bike', 'nonstatic/Bike.png')
-        this.load.image('highway-road', 'static/HighwayRoad.png')
-        this.load.image('highway-wall', 'static/HighwayWall.png')
-        this.load.image('title', 'static/Title.png')
-        this.load.spritesheet('character', 'nonstatic/Character.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        this.load.spritesheet('bike-character', 'nonstatic/BikeCharacter.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        this.load.spritesheet('bike-slash-up', 'nonstatic/BikeCharacterSlashUp-Sheet.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        this.load.spritesheet('bike-slash-down', 'nonstatic/BikeCharacterSlashDown-Sheet.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        this.load.spritesheet('character-stab', 'nonstatic/CharacterStab-Sheet.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        })
-        // background assets
-        this.load.image('background-stars', 'static/BackgroundStars.png')
-        this.load.image('background-city', 'static/BackgroundCity.png')
-        this.load.image('background-earth', 'static/BackgroundEarth.png')
-
-
-
-        // load enemy assets
-        this.load.spritesheet('hover-guard', 'nonstatic/HoverGuard.png', {
-            frameWidth: 64
-        })
-        this.load.image('soldier-bike', 'nonstatic/SoldierBike.png')
-        this.load.spritesheet('bullet', 'nonstatic/Bullet-Sheet.png', {
-            frameWidth: 32,
-            frameHeight: 32
-        })
-        this.load.spritesheet('indication-of-bullet', 'nonstatic/IndicationOfAttack-Sheet.png', {
-            frameWidth: 32,
-            frameHeight: 32
-        })
-        
-        // load audio
-        this.load.path = './assets/audio/'
-        this.load.audio('stab-sound', 'SoundEffects/stab.mp3')
-        this.load.audio('bike-drive-sound', 'SoundEffects/drive.wav')
-        this.load.audio('death-sound', 'SoundEffects/death2.wav')
-        this.load.audio('slash-sound', 'SoundEffects/slash.mp3')
-        this.load.audio('alarm-sound', 'SoundEffects/alarm.wav')
-        this.load.audio('fire-sound', 'SoundEffects/fire.wav')
-        this.load.audio('jump-sound', 'SoundEffects/jump.wav')
-        this.load.audio('hit-sound', 'SoundEffects/hit.wav')
-        this.load.audio('wave-sound', 'SoundEffects/wave.wav')
-
-        // load music
-        this.load.audio('music', 'Music/blade-cycle.mp3')
-    }
-
-    create() {
         // animations enemies
         this.anims.create({
             key: 'flying',
@@ -199,10 +127,9 @@ class Menu extends Phaser.Scene {
             framerate: 0.25,
             repeat: 0
         })
+    }
 
-
-
-
+    create() {
 
         // place tile sprites
         this.roadTop = this.game.config.height - 200 // subtract this by pixel height for the wall loocation
@@ -215,23 +142,124 @@ class Menu extends Phaser.Scene {
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
         this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
         
-        this.physics.add.image(this.game.config.width/2, this.game.config.height/2, 'title')
+        this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
 
+
+        // containers for play and volume
+        const button = this.add.image(game.config.width/2, game.config.height/4 * 3, 'start-button', 0)
         
-        this.temp_bike = this.physics.add.image(0, game.config.height/2 + game.config.height/4, 'bike-character', 0)
+        //const container = this.add.container(0, 0, button)
+
+        button.setInteractive()
         
-        this.sound.play('alarm-sound', {
-            volume: game.settings.volume,
-            loop: true,
-            pan: -10
+        button.on('pointover', () => {
+            button.setTint('#ffffff')
         })
-        this.time.delayedCall(3000, () => {
-            this.sound.stopAll('alarm-sound')
-            this.scene.start('introScene')
+        button.on('pointerout', () => {
+            button.clearTint()
         })
+        button.once('pointerup', () => {
+            button.setFrame(1)
+            this.time.delayedCall(1000, () => {
+                this.sound.stopAll()
+                this.scene.start('introScene')
+            })
+        })
+
+        // settings
+        // display
+        let fontConfig = {
+            fontFamily: 'bladeFont', 
+            fontSize: '20px',
+            backgroundColor: '#a4b9c700',
+            color: '#49fff5',
+            align: 'center',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 400
+        }
+        // display container properties
+        const distFromY = 60
+        const distFromX = 30
+
+        // volume settings
+        const volumeInc = this.add.image(distFromX, game.config.height/2 - distFromY, 'volume-button', 0)
+        const volumeDec = this.add.image(distFromX, game.config.height/2 + distFromY, 'volume-button', 2)
+        const volumeBg = this.add.image(0, 0, 'small-button', 0).setOrigin(0.5, 0.5)
+        const volumeTitle = this.add.text(-6, -10, `Volume:`, fontConfig).setOrigin(0.5, 0.5)
+        this.volumeText = this.add.text(-6, 10, this.game.settings.volume*10, fontConfig).setOrigin(0.5, 0.5)
+        
+        const volumeContain = this.add.container(distFromX + volumeBg.width/4, game.config.height/2, [ volumeBg, volumeTitle, this.volumeText ])
+        volumeInc.setInteractive()
+        volumeDec.setInteractive()
+
+        volumeInc.on('pointerup', () => {
+            if (this.game.settings.volume < 1){
+                volumeInc.setFrame(1)
+                this.game.settings.volume += 0.1
+                this.time.delayedCall(500, () => {
+                    volumeInc.setFrame(0)
+                    console.log(this.game.settings.volume)
+                    this.volumeText.setText(this.game.settings.volume*10)
+                })
+            }
+        })
+
+        volumeDec.on('pointerup', () => {
+            if (this.game.settings.volume > 0) {
+                volumeDec.setFrame(3)
+                this.game.settings.volume -= 0.1
+                this.time.delayedCall(500, () => {
+                    volumeDec.setFrame(2)
+                    console.log(this.game.settings.volume)
+                    this.volumeText.setText(this.game.settings.volume*10)
+                })
+            }
+        })
+
+        // music settings
+        const musicInc = this.add.image(game.config.width - distFromX, game.config.height/2 - distFromY, 'volume-button', 0)
+        const musicDec = this.add.image(game.config.width - distFromX, game.config.height/2 + distFromY, 'volume-button', 2)
+        const musicBg = this.add.image(0, 0, 'small-button', 0).setOrigin(0.5, 0.5)
+        const musicTitle = this.add.text(-6, -10, `Music:`, fontConfig).setOrigin(0.5, 0.5)
+        this.musicText = this.add.text(-6, 10, this.game.settings.music*10, fontConfig).setOrigin(0.5, 0.5)
+        
+        const musicContain = this.add.container(game.config.width - distFromX - volumeBg.width/4, game.config.height/2, [ musicBg, musicTitle, this.musicText ])
+        musicInc.setInteractive()
+        musicDec.setInteractive()
+
+        musicInc.on('pointerup', () => {
+            if (this.game.settings.music < 1){
+                musicInc.setFrame(1)
+                this.game.settings.music += 0.1
+                this.time.delayedCall(200, () => {
+                    musicInc.setFrame(0)
+                    console.log(this.game.settings.music)
+                    this.musicText.setText(Math.floor(this.game.settings.music*10))
+                })
+            }
+        })
+
+        musicDec.on('pointerup', () => {
+            if (this.game.settings.music > 0) {
+                musicDec.setFrame(3)
+                this.game.settings.music -= 0.1
+                this.time.delayedCall(200, () => {
+                    musicDec.setFrame(2)
+                    console.log(this.game.settings.music)
+                    this.musicText.setText(Math.floor(this.game.settings.music*10))
+                })
+            }
+        })
+
+        // highscore
+        this.highScoreText = this.add.text(game.config.width/2 - 10, game.config.height/1.1, `Highscore: ${this.game.settings.highScore}`, fontConfig).setOrigin(0.5, 0.5)
+        
     }
 
     update() {
-        this.temp_bike.x += 0.7
+        this.backgroundStars.tilePositionX += 0.04
     }
 }

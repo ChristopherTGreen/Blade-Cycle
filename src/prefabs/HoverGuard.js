@@ -152,5 +152,6 @@ class DeathState extends State {
         console.log("Death")
 
         scene.deathAnim(enemy, 500, true)
+        scene.score += 100
     }
 }

@@ -14,7 +14,7 @@ class Intro extends Phaser.Scene {
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
         this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
         
-        this.physics.add.image(this.game.config.width/2, this.game.config.height/2, 'title')
+        this.title = this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
 
         
         this.temp_bike = this.physics.add.image(0, game.config.height/2 + game.config.height/4, 'bike-character', 0)
@@ -22,15 +22,17 @@ class Intro extends Phaser.Scene {
         this.sound.play('alarm-sound', {
             volume: game.settings.volume,
             loop: true,
-            pan: -10
+            pan: -1
         })
-        this.time.delayedCall(3000, () => {
+        this.time.delayedCall(5000, () => {
             this.sound.stopAll('alarm-sound')
             this.scene.start('highwayScene')
         })
     }
 
     update() {
-        this.temp_bike.x += 0.7
+        this.temp_bike.setVelocityX(200)
+        this.backgroundStars.tilePositionX += 0.04
+        this.title.setVelocityX(200)
     }
 }

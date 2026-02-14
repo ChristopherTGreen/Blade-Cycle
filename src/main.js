@@ -29,7 +29,7 @@ let config = {
         enableWebAudio: true
     },
     
-    scene: [ Menu, Intro, Highway ]
+    scene: [ Preload, Menu, Intro, Highway ]
 }
 
 let game = new Phaser.Game(config)
@@ -37,4 +37,9 @@ let game = new Phaser.Game(config)
 // reserve keyboard bindings (might change to cursors)
 let keyLEFT, keyRIGHT, keyUP, keyDOWN, keyARDOWN, keyARUP, keySPACE
 
-// might set UI sizes later
+// initial settings
+game.settings = {
+    volume: 1,
+    music: 1,
+    highScore: 0
+}

@@ -1,5 +1,5 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor (scene, x, y, texture, frame, direction, target) {
+    constructor (scene, x, y, texture, frame, direction, hp) {
         super(scene, x, y, texture, frame)
 
         // add object to existing scene
@@ -12,7 +12,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.maxAccel = 300.0
 
         this.direction = direction
-        this.hp = 500.0
+        this.hp = hp
         this.initialDist = true
         this.coyoteTime = 2000
         this.coyote = true
@@ -52,6 +52,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
                 bullet.lifeTime = 0
                 target.hp -= 25
+                scene.healthText.setText(`Health: ${Math.floor(target.hp)}`)
                 console.log('hit')
 
                 // time of red hit and time of vulnerability
@@ -302,12 +303,13 @@ class StabState extends State {
         player.setAcceleration(0, 0)
         player.setVelocity(0, 0)
         player.anims.play(`stab-down`)
-        scene.soundStab.play()
+        
 
         
         // delayed damage for more effect
         scene.time.delayedCall(300, () => {
             player.stabHitbox.body.enable = true
+            scene.soundStab.play()
             // damage hitbox
             player.stabHitbox.x = player.x + player.hitboxX
             player.stabHitbox.y = player.y + ((player.direction == 'up') ? player.hitboxUpY : player.hitboxDownY)
@@ -330,11 +332,21 @@ class DeathPState extends State {
         console.log('death')
         // clear tint if we have one
 
-        scene.deathAnim(player, 300, false)
+        scene.deathAnim(player, 400, false)
+        player.disableBody(true, false)
         
         scene.time.delayedCall(400, () => {
-            scene.sound.stopAll()
-            scene.scene.restart()
+            scene.restartButton.setVisible(true)
+            scene.restartButton.setInteractive()
+            scene.menuContain.setVisible(true)
+            scene.menuBg.setInteractive()
+            scene.highScoreText.setPosition(game.config.width/2.4, game.config.height/2)
+
+            if (game.settings.highScore < scene.score) {
+                game.settings.highScore = scene.score
+                scene.highScoreText.setPosition(game.config.width/3, game.config.height/2)
+                scene.highScoreText.setText(`New Highscore: ${game.settings.highScore}`)
+            }
         })
     }
 }

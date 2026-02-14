@@ -24,6 +24,9 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.lifeTime -= delta
 
         if (this.firingSource !== null) this.setPosition(this.firingSource.x + this.firingSource.fireOffsetX, this.firingSource.y + this.firingSource.fireOffsetY)
+        if (this.firingSource !== null && !(this.firingSource && this.firingSource.active && this.firingSource.body)) {
+            this.lifeTime = 0
+        }
 
         if (this.lifeTime <= 0) {
             this.lifeTime = 0
