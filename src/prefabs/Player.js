@@ -56,8 +56,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 console.log('hit')
 
                 // time of red hit and time of vulnerability
-                scene.damageHit(this, 300, 100)
-                scene.damageHit(scene.bike, 300, 100)
+                scene.damageHit(this, 200, 75)
+                scene.damageHit(scene.bike, 200, 75)
             }
         })
 

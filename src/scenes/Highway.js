@@ -96,7 +96,7 @@ class Highway extends Phaser.Scene {
 
         // sound assignments (should move these to respective groups if i have time)
         this.soundDeath = this.sound.add('death-sound', {
-            volume: game.settings.volume * 1.3
+            volume: game.settings.volume * 1.4
         })
         this.soundSlash = this.sound.add('slash-sound', {
             volume: game.settings.volume * 1.3
@@ -172,7 +172,6 @@ class Highway extends Phaser.Scene {
 
         // highscore
         this.highScoreText = this.add.text(game.config.width/2, 0, `Score: ${this.score}`, fontConfig).setScrollFactor(1,1).setDepth(2000)
-        
         
     }
 
@@ -307,7 +306,7 @@ class Highway extends Phaser.Scene {
     damageHit(source, redTime, time){
         this.cameras.main.shake(200, 0.003)
         this.sound.play('hit-sound', {
-            volume: game.settings.volume
+            volume: game.settings.volume * 1.1
         })
         this.tweens.add({
             targets: source,

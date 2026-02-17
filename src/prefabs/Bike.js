@@ -7,8 +7,8 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
     
         // properties
-        this.accelX = 300.0 // maybe make velocity for more control
-        this.accelY = 200.0
+        this.accelX = 350.0 // maybe make velocity for more control
+        this.accelY = 250.0
         this.maxAccel = 500.0
         this.bikeSlash = true
 
@@ -20,12 +20,13 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         const sizeDiff = 16
         this.setSize(this.width - sizeDiff, this.height/4).setOffset(sizeDiff/2, 2 * this.height/4)
         this.setCollideWorldBounds(true)
-        this.setDrag(150, 200)
+        this.setDrag(250, 200)
+        this.setMaxVelocity(this.maxAccel)
         this.body.setAllowGravity(false)
         console.log("called constructor play")
 
         // bike slash damageboxes
-        this.hitboxSizeV = 20
+        this.hitboxSizeV = 30
         this.slashHitbox = scene.add.zone(0, 0, 40, this.hitboxSizeV);
         scene.physics.add.existing(this.slashHitbox);
         this.slashHitbox.body.setAllowGravity(false);
@@ -46,8 +47,8 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
                 console.log('hit')
 
                 // time of red hit and time of vulnerability
-                scene.damageHit(this, 300, 100)
-                scene.damageHit(scene.player, 300, 100)
+                scene.damageHit(this, 200, 75)
+                scene.damageHit(scene.player, 200, 75)
             }
         })
         

@@ -7,7 +7,7 @@ let config = {
     width: 854,
     height: 480,
     parent: 'Blade Cycle',
-    backgroundColor: '#FFFF66',
+    backgroundColor: '#ffffff',
     scale: {
         zoom: 1
         

@@ -20,7 +20,7 @@ class Menu extends Phaser.Scene {
                 start: 0,
                 end: 5
             }),
-            duration: 1250,
+            duration: 1000,
             framerate: 1,
             repeat: 0
         })
@@ -142,7 +142,7 @@ class Menu extends Phaser.Scene {
         this.highwayRoad = this.add.tileSprite(0, this.roadTop, this.game.config.width, 200, 'highway-road').setOrigin(0, 0)
         this.highwayWall = this.add.tileSprite(0, this.roadTop - this.wallSize, this.game.config.width, this.wallSize, 'highway-wall').setOrigin(0, 0)
         
-        this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
+        this.title = this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
 
 
         // containers for play and volume
@@ -152,12 +152,6 @@ class Menu extends Phaser.Scene {
 
         button.setInteractive()
         
-        button.on('pointover', () => {
-            button.setTint('#ffffff')
-        })
-        button.on('pointerout', () => {
-            button.clearTint()
-        })
         button.once('pointerup', () => {
             button.setFrame(1)
             this.time.delayedCall(1000, () => {
@@ -190,6 +184,7 @@ class Menu extends Phaser.Scene {
         const volumeBg = this.add.image(0, 0, 'small-button', 0).setOrigin(0.5, 0.5)
         const volumeTitle = this.add.text(-6, -10, `Volume:`, fontConfig).setOrigin(0.5, 0.5)
         this.volumeText = this.add.text(-6, 10, this.game.settings.volume*10, fontConfig).setOrigin(0.5, 0.5)
+        const volumeGroup = this.add.group([ volumeInc, volumeDec, volumeBg, volumeTitle, this.volumeText ])
         
         const volumeContain = this.add.container(distFromX + volumeBg.width/4, game.config.height/2, [ volumeBg, volumeTitle, this.volumeText ])
         volumeInc.setInteractive()
@@ -225,7 +220,8 @@ class Menu extends Phaser.Scene {
         const musicBg = this.add.image(0, 0, 'small-button', 0).setOrigin(0.5, 0.5)
         const musicTitle = this.add.text(-6, -10, `Music:`, fontConfig).setOrigin(0.5, 0.5)
         this.musicText = this.add.text(-6, 10, this.game.settings.music*10, fontConfig).setOrigin(0.5, 0.5)
-        
+        const musicGroup = this.add.group([ musicInc, musicDec, musicBg, musicTitle, this.musicText ])
+
         const musicContain = this.add.container(game.config.width - distFromX - volumeBg.width/4, game.config.height/2, [ musicBg, musicTitle, this.musicText ])
         musicInc.setInteractive()
         musicDec.setInteractive()
@@ -257,6 +253,107 @@ class Menu extends Phaser.Scene {
         // highscore
         this.highScoreText = this.add.text(game.config.width/2 - 10, game.config.height/1.1, `Highscore: ${this.game.settings.highScore}`, fontConfig).setOrigin(0.5, 0.5)
         
+        // assign UI groups for quick disable
+        this.UI = this.add.group([ this.title, this.highScoreText, button ])
+        this.allUI = this.add.group([ this.UI, volumeGroup, musicGroup ])
+        this.allUI.addMultiple(this.UI.getChildren())
+        this.allUI.addMultiple(volumeGroup.getChildren())
+        this.allUI.addMultiple(musicGroup.getChildren())
+
+        this.interactiveUI = this.add.group([button, volumeInc, volumeDec, musicInc, musicDec ])
+
+
+        // extra config
+        let extraConfig = {
+            fontFamily: 'bladeFont', 
+            fontSize: '32px',
+            backgroundColor: '#a4b9c700',
+            color: '#45eae2',
+            wordWrap: { width: this.game.config.width-100, useAdvancedWrap: true},
+            align: 'center',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            lineSpacing: 1,
+            fixedWidth: this.game.config.width
+        }
+
+        // credits
+        const credits =
+        "Code, Art, Music, and Sound were\n" +
+        "Developed by Christopher Green\n" +
+        "Abberancy Font by Raymond Larabie under PD"
+        this.creditsText = this.add.text(0, 50, credits, extraConfig).setVisible(false).setStroke('#7796a9', 4)
+        const creditsButton = this.add.image(0, game.config.height - distFromY/2, 'small-button', 0).setInteractive()
+        creditsButton.x = game.config.width - distFromX - creditsButton.width/4
+        const creditsTitle = this.add.text(creditsButton.x-5, creditsButton.y, `Credits`, fontConfig).setOrigin(0.5, 0.5)
+        let creditsToggle = false
+
+        // instructions/guide
+        const guide =
+        "Bike:\n" +
+        "- WASD keys to Move\n" +
+        "- Up & Down Arrows to Slash\n" +
+        "- Spacebar to Jump/Transition to Player\n" +
+        "Player: (After jumping/unseated)\n" +
+        "- ASD keys to Move\n" +
+        "- Down Arrow to Stab\n" +
+        "- Spacebar to Jump\n" +
+        "- Fall to get back on Bike\n" + 
+        "Warning: Can only stab as Player while on-top of Hoverguard"
+        this.guideText = this.add.text(100, 0, guide, extraConfig).setVisible(false).setAlign('left').setStroke('#7796a9', 4)
+        const guideButton = this.add.image(0, game.config.height - distFromY/2, 'small-button', 0).setInteractive()
+        guideButton.x = distFromX + guideButton.width/4
+        const guideTitle = this.add.text(guideButton.x-8, guideButton.y, `Guide`, fontConfig).setOrigin(0.5, 0.5)
+        let guideToggle = false
+
+
+        // code for both after initialization
+
+        creditsButton.on('pointerup', () => {
+            creditsButton.setFrame(1)
+            creditsToggle = !creditsToggle
+            this.creditsText.setVisible(creditsToggle)
+            this.allUI.getChildren().forEach(obj => {
+                obj.setVisible(!creditsToggle)
+            })
+
+            this.interactiveUI.getChildren().forEach(ui => {
+                ui.setInteractive(!creditsToggle)
+            })
+
+            // disable the other button
+            guideButton.setVisible(!creditsToggle)
+            guideTitle.setVisible(!creditsToggle)
+            guideButton.setInteractive(!creditsToggle)
+
+            this.time.delayedCall(200, () => {
+                creditsButton.setFrame(0)
+            })
+        })
+        
+        guideButton.on('pointerup', () => {
+            guideButton.setFrame(1)
+            guideToggle = !guideToggle
+            this.guideText.setVisible(guideToggle)
+            this.allUI.getChildren().forEach(obj => {
+                obj.setVisible(!guideToggle)
+            })
+
+            this.interactiveUI.getChildren().forEach(ui => {
+                ui.setInteractive(!guideToggle)
+            })
+
+            // disable the other button
+            creditsButton.setVisible(!guideToggle)
+            creditsTitle.setVisible(!guideToggle)
+            creditsButton.setInteractive(!guideToggle)
+
+            this.time.delayedCall(200, () => {
+                guideButton.setFrame(0)
+            })
+        })
     }
 
     update() {

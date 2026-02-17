@@ -113,7 +113,7 @@ class PatrolState extends State {
         if (distance < enemy.firingRange && distance > enemy.firingLimitR && !enemy.firing) {
             enemy.firing = true
             // wait 500ms to fire (if still alive)
-            scene.time.delayedCall(1500, () => {
+            scene.time.delayedCall(1200, () => {
                 if (enemy && enemy.active) this.stateMachine.transition('fire')
             })
         }
