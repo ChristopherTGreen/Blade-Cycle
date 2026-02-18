@@ -88,9 +88,12 @@ class Preload extends Phaser.Scene {
         this.load.audio('jump-sound', 'SoundEffects/jump.wav')
         this.load.audio('hit-sound', 'SoundEffects/hit.wav')
         this.load.audio('wave-sound', 'SoundEffects/wave.wav')
-
+        this.load.audio('click-sound', 'SoundEffects/click.wav')
+        
         // load music
         this.load.audio('music', 'Music/blade-cycle.mp3')
+
+        console.log('finished preload')
     }
 
     create() {

@@ -48,7 +48,7 @@ class Highway extends Phaser.Scene {
         
 
         // add bike sprite
-        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 0, 'right', this.givenHp)
+        this.bike = new Bike(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'bike-character', 1, 'right', this.givenHp)
 
         // add player sprite (transparent, but constantly on the bike until jumping off)
         this.player = new Player(this, game.config.width/2, game.config.height/2 + game.config.height/4, 'character', 0, 'right', this.givenHp)
@@ -113,14 +113,10 @@ class Highway extends Phaser.Scene {
         music.play()
 
 
-        // key controls
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
-        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
-        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-        keyARDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
-        keyARUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
+        // click sound
+        const clickSound = this.sound.add('click-sound', {
+            volume: this.game.settings.volume
+        })
 
         // display
         let fontConfig = {
@@ -147,6 +143,7 @@ class Highway extends Phaser.Scene {
         this.restartButton.setInteractive()
         this.restartButton.on('pointerup', () => {
             this.restartButton.setFrame(1)
+            clickSound.play()
             this.time.delayedCall(1000, () => {
                 this.sound.stopAll()
                 this.scene.restart()
@@ -162,6 +159,7 @@ class Highway extends Phaser.Scene {
 
         this.menuBg.on('pointerup', () => {
             this.menuBg.setFrame(1)
+            clickSound.play()
             this.time.delayedCall(500, () => {
                 this.sound.stopAll()
                 this.menuBg.setFrame(0)
@@ -173,6 +171,14 @@ class Highway extends Phaser.Scene {
         // highscore
         this.highScoreText = this.add.text(game.config.width/2, 0, `Score: ${this.score}`, fontConfig).setScrollFactor(1,1).setDepth(2000)
         
+        // key controls
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
+        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+        keyARDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
+        keyARUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
     }
 
     update() {

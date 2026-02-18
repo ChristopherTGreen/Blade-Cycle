@@ -17,7 +17,7 @@ class Intro extends Phaser.Scene {
         this.title = this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
 
         
-        this.temp_bike = this.physics.add.image(0, game.config.height/2 + game.config.height/4, 'bike-character', 0)
+        this.temp_bike = this.physics.add.image(0, game.config.height/2 + game.config.height/4, 'bike-character', 1)
         
         this.sound.play('alarm-sound', {
             volume: game.settings.volume,

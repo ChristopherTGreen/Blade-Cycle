@@ -171,6 +171,7 @@ class IdleState extends State {
             scene.damageHit(scene.bike, 300, 100)
             player.hp -= 25
             player.recentHit = true
+            scene.healthText.setText(`Health: ${Math.floor(player.hp)}`)
             this.stateMachine.transition('inactive')
         }
         
@@ -231,6 +232,7 @@ class MoveState extends State {
             scene.damageHit(scene.bike, 300, 100)
             player.hp -= 25
             player.recentHit = true
+            scene.healthText.setText(`Health: ${Math.floor(player.hp)}`)
             this.stateMachine.transition('inactive')
         }
     }
