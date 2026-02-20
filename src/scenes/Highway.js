@@ -55,7 +55,7 @@ class Highway extends Phaser.Scene {
 
         // create enemies
         // soldier enemies
-        this.maxVsoldierX = 125.0
+        this.maxVsoldierX = 135.0
         this.maxVsoldierY = 75.0
         this.soldiers = this.physics.add.group({
             classType: SoldierBike,

@@ -7,8 +7,8 @@ class SoldierBike extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this) // add physics to existing
     
         // properties
-        this.accelX = 100.0
-        this.accelY = 40.0
+        this.accelX = 140.0
+        this.accelY = 50.0
 
         this.direction = direction
         this.firing = false
