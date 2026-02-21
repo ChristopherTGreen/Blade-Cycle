@@ -4,10 +4,17 @@
 
 let config = {
     type: Phaser.AUTO,
-    width: 720,
+    width: 854,
     height: 480,
+    parent: 'Blade Cycle',
+    backgroundColor: '#ffffff',
+    scale: {
+        zoom: 1
+        
+    },
     render: {
-        pixelArt: true
+        pixelArt: true,
+        
     },
     physics: {
         default: 'arcade',
@@ -15,15 +22,24 @@ let config = {
             gravity: {
                 y: 0
             },
-            debug: true
+            debug: false,
         }
     },
-    scene: [ Menu, Highway ]
+    audio: {
+        enableWebAudio: true
+    },
+    
+    scene: [ Preload, Menu, Intro, Highway ]
 }
 
 let game = new Phaser.Game(config)
 
 // reserve keyboard bindings (might change to cursors)
-let keyLEFT, keyRIGHT, keyUP, keyDOWN, keySLASH, keySPACE
+let keyLEFT, keyRIGHT, keyUP, keyDOWN, keyARDOWN, keyARUP, keySPACE
 
-// might set UI sizes later
+// initial settings
+game.settings = {
+    volume: 1,
+    music: 1,
+    highScore: 0
+}
