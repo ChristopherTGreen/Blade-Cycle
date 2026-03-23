@@ -1,4 +1,4 @@
-# Blade Cycle
+# ⚔️ Blade Cycle
 An open-source endless runner, incorporating finite state machines, and enemy AI detection/avoidance to create a chase-scene in an industrial, sci-fi environment. The project was for a simple class assignment, which I went a overboard on and went all out on into a full experience, with enough structure and modularity to be further added onto.
 
 ## Technologies
