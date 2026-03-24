@@ -9,10 +9,14 @@ let config = {
     width: 854,
     height: 480,
     parent: 'Blade Cycle',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
+    resolution: 1,
     scale: {
-        zoom: 1
-        
+        zoom: 1,
+        mode: Phaser.Scale.NONE,
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+
     },
     render: {
         pixelArt: true,
