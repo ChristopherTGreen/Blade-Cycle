@@ -178,6 +178,7 @@ class MoveBikeState extends State {
         //bike.anims.play(`move-${bike.direction}`)
         // sound detune based on velocity
         bike.drivingSound.setDetune(bike.body.velocity.length()/2 - 50)
+        if (bike.drivingSound.volume != scene.game.settings.volume) bike.drivingSound.setVolume(scene.game.settings.volume)
 
 
         // check if the player is static relative to body
@@ -213,7 +214,7 @@ class MoveBikeState extends State {
         scene.tweens.add({ 
             targets: bike.drivingSound,
             volume: 0,
-            duration: 500, 
+            duration: 100, 
             onComplete: () => {
                 bike.drivingSound.stop()
                 bike.drivingSound.setVolume(scene.game.settings.volume)
