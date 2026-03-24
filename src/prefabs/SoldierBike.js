@@ -27,13 +27,13 @@ class SoldierBike extends Phaser.Physics.Arcade.Sprite {
         this.setSize(this.width, this.height/4).setOffset(0 , 2 * this.height/3)
         this.setImmovable(true)
         this.body.setAllowGravity(false)
-        console.log("called constructor ah")
+        //console.log("called constructor ah")
 
         // hitbox for the slash, causes damage
         scene.physics.add.overlap(scene.bike.slashHitbox, this, (hitbox, enemy) => {
             if (hitbox.body.enable && !enemy.recentHit) {
                 enemy.hp -= 50.0
-                console.log('success hitttttttttt')
+                //console.log('success hitttttttttt')
                 hitbox.body.enable = false
                 enemy.recentHit = true
 
@@ -82,18 +82,18 @@ class ChaseState extends State {
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
         if ((enemy.y > target.y && distanceY > farTrackingY) || ( enemy.y < target.y && distanceY < closeTrackingY)) {
-            console.log("soldier: go above")
+            //console.log("soldier: go above")
             enemyVector.y = -1
         }
         else if ((enemy.y < target.y && distanceY > farTrackingY) || (enemy.y > target.y && distanceY < closeTrackingY)) {
-            console.log("soldier: go below")
+            //console.log("soldier: go below")
             enemyVector.y = 1
         }
       
         // secondary movement for x, bypasses priority in situation in which too close on y axis
         if (distanceY < closeTrackingY && distanceX < closeTrackingX) {
             enemyVector.x = (directionX > 0) ? -1 : 1
-            console.log('close soldier, back')
+            //console.log('close soldier, back')
         }
 
 
@@ -141,7 +141,7 @@ class DeathBState extends State {
     // death plays on entry
     enter(scene, enemy, target) {
         // clear tint if we have one
-        console.log("Death")
+        //console.log("Death")
         scene.deathAnim(enemy, 500, true)
         scene.score += 50
     }

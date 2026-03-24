@@ -28,7 +28,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.setDragX(200)
         this.body.setAllowGravity(false)
         this.setMaxVelocity(150, 400)
-        console.log("called constructor play")
+        //console.log("called constructor play")
 
         // stab damageboxes
         this.hitboxSizeV = 30
@@ -53,7 +53,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 bullet.lifeTime = 0
                 target.hp -= 25
                 scene.healthText.setText(`Health: ${Math.floor(target.hp)}`)
-                console.log('hit')
+                //console.log('hit')
 
                 // time of red hit and time of vulnerability
                 scene.damageHit(this, 200, 75)
@@ -101,7 +101,7 @@ class InactiveState extends State {
         // resetter to prevent character from accidentally appearing or unintended collisions
 
         if (keySPACE.isDown) {
-            console.log('transition')
+            //console.log('transition')
             // jump sound
             player.jumpSound.play()
 
@@ -134,7 +134,7 @@ class IdleState extends State {
 
     // executes every call/frame
     execute(scene, player) {
-        console.log('idle')
+        //console.log('idle')
         let playerVector = new Phaser.Math.Vector2(0, 0)
         // movement transition
         if(keyLEFT.isDown || keyRIGHT.isDown) {
@@ -186,16 +186,16 @@ class MoveState extends State {
     execute(scene, player) {
         // use destructuring to make a local copy of the keyboard object
         let playerVector = new Phaser.Math.Vector2(0, 0)
-        console.log('move')
+        //console.log('move')
         
         
         if(keyLEFT.isDown) {
             player.direction = 'left'
-            console.log('left')
+            //console.log('left')
             playerVector.x = -1
         } else if(keyRIGHT.isDown) {
             player.direction = 'right'
-            console.log('right')
+            //console.log('right')
             playerVector.x = 1
         }
 
@@ -244,7 +244,7 @@ class MoveState extends State {
 class JumpState extends State {
     // executes every call/frame
     execute(scene, player) {
-        console.log('jump')
+        //console.log('jump')
         // use destructuring to make a local copy of the keyboard object
         let playerVector = new Phaser.Math.Vector2(0, 0)
 
@@ -331,7 +331,7 @@ class StabState extends State {
 class DeathPState extends State {
     // upon death plays audio once
     enter(scene, player) {
-        console.log('death')
+        //console.log('death')
         // clear tint if we have one
 
         scene.deathAnim(player, 400, false)

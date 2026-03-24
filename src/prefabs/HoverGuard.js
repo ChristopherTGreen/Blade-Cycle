@@ -28,13 +28,13 @@ class HoverGuard extends Phaser.Physics.Arcade.Sprite {
         this.setSize(64, 10).setOffset(0, this.height/2 - 5)
         this.setImmovable(true)
         this.body.setAllowGravity(false)
-        console.log("called constructor")
+        //console.log("called constructor")
 
         // hitbox for the stab, causes damage
         scene.physics.add.overlap(scene.player.stabHitbox, this, (hitbox, enemy) => {
             if (hitbox.body.enable && !enemy.recentHit) {
                 enemy.hp -= 25.0
-                console.log('success hitttttttttt')
+                //console.log('success hitttttttttt')
                 hitbox.body.enable = false
                 enemy.recentHit = true
 
@@ -95,15 +95,15 @@ class PatrolState extends State {
 
         // aligns itself with enemy above or below, relative to player's y axis, and closest position
         if (distance > enemy.trackingDist && enemy.y < target.y && distanceY + (1 + Math.abs(enemy.body.acceleration.y/10)) > enemy.trackingMOE*avoidRate) {
-            console.log("guard: going roughly above target, downwards")
+            //console.log("guard: going roughly above target, downwards")
             enemyVector.y = 1
         }
         else if (scene.statusCycle && distanceY < enemy.trackingMOE * avoidCycleRate){
-            console.log("guard: too low, rising")
+            //console.log("guard: too low, rising")
             enemyVector.y = -1
         }
         else if (!scene.statusCycle && distance > enemy.trackingDist && distanceY < enemy.trackingMOE * avoidPlayerRate){
-            console.log("guard: too low, rising")
+            //console.log("guard: too low, rising")
             enemyVector.y = -1
         }
 
@@ -149,7 +149,7 @@ class DeathState extends State {
     // death plays on entry
     enter(scene, enemy, target) {
         // clear tint if we have one
-        console.log("Death")
+        //console.log("Death")
 
         scene.deathAnim(enemy, 500, true)
         scene.score += 100
