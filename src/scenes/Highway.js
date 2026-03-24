@@ -205,7 +205,9 @@ class Highway extends Phaser.Scene {
     // wave transition, resets enemies and increases their count
     // only spawns additional hoverguards if count is 1.5 that of soldiers
     resetEnemies() {
-        this.sound.play('wave-sound')
+        this.sound.play('wave-sound', {
+            volume: game.settings.volume * 1.0
+        })
         this.waveCount += 1
 
         if (this.bikeCount < this.guardCount * 2) this.bikeCount += 1

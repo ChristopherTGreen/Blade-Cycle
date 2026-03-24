@@ -23,7 +23,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         this.setDrag(250, 200)
         this.setMaxVelocity(this.maxAccel)
         this.body.setAllowGravity(false)
-        console.log("called constructor play")
+        //console.log("called constructor play")
 
         // bike slash damageboxes
         this.hitboxSizeV = 30
@@ -44,7 +44,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
                 bullet.lifeTime = 0
                 target.hp -= 25
                 scene.healthText.setText(`Health: ${Math.floor(target.hp)}`)
-                console.log('hit')
+                //console.log('hit')
 
                 // time of red hit and time of vulnerability
                 scene.damageHit(this, 200, 75)
@@ -54,7 +54,7 @@ class Bike extends Phaser.Physics.Arcade.Sprite {
         
         // sound assignments
         this.drivingSound = scene.sound.add('bike-drive-sound', {
-            volume: game.settings.volume*0.9,
+            volume: scene.game.settings.volume*0.9,
             loop: true,
             rate: 1,
             detune: 0
@@ -90,7 +90,7 @@ class InactiveBikeState extends State {
     execute(scene, bike) {
 
         if (scene.statusCycle) {
-            console.log('transition')
+            //console.log('transition')
             scene.bike.anims.play('riding-bike')
             
             bike.body.setVelocityX(scene.bike.body.velocity.x)
@@ -112,7 +112,7 @@ class InactiveBikeState extends State {
 class IdleBikeState extends State {
 // executes every call/frame
     execute(scene, bike) {
-        console.log('idle Bike')
+        //console.log('idle Bike')
         bike.direction = 'right'
         // movement transition
         if(keyLEFT.isDown || keyRIGHT.isDown || keyDOWN.isDown || keyUP.isDown) {
@@ -147,12 +147,13 @@ class MoveBikeState extends State {
     enter(scene, bike) {
         scene.tweens.killTweensOf(bike.drivingSound) // kills current sounds
         bike.drivingSound.play()
+        
     }
 
     // executes every call/frame
     execute(scene, bike) {
         let playerVector = new Phaser.Math.Vector2(0, 0)
-        console.log('bike move')
+        //console.log('bike move')
         
         
         if(keyLEFT.isDown) {
@@ -215,7 +216,7 @@ class MoveBikeState extends State {
             duration: 500, 
             onComplete: () => {
                 bike.drivingSound.stop()
-                bike.drivingSound.setVolume(1)
+                bike.drivingSound.setVolume(scene.game.settings.volume)
             }
         })
     }
@@ -259,7 +260,7 @@ class SlashState extends State {
 class DeathBikeState extends State {
     // upon death plays audio once
     enter(scene, bike) {
-        console.log('death')
+        //console.log('death')
         // clear tint if we have one
 
         scene.deathAnim(bike, 400, false)

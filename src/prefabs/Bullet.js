@@ -58,7 +58,9 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 
             this.anims.play('indication')
             this.once('animationcomplete', () => {
-                scene.sound.play('fire-sound')
+                scene.sound.play('fire-sound', {
+                    volume: scene.game.settings.volume * 1.0
+                })
                 // return if source is destroyed
                 if (!(source && source.active && source.body)) {
                     this.lifeTime = 0

@@ -145,10 +145,11 @@ class Menu extends Phaser.Scene {
         this.title = this.physics.add.image(this.game.config.width/2, this.game.config.height/4, 'title')
 
         // click sound
-        const clickSound = this.sound.add('click-sound', {
+        const clickSound = () => {
+            this.sound.play('click-sound', {
             volume: this.game.settings.volume
-        })
-        
+            })
+        }
         
         // containers for play and volume
         const button = this.add.image(game.config.width/2, game.config.height/4 * 3, 'start-button', 0)
@@ -159,7 +160,7 @@ class Menu extends Phaser.Scene {
         
         button.once('pointerup', () => {
             button.setFrame(1)
-            clickSound.play()
+            clickSound()
             this.time.delayedCall(1000, () => {
                 this.sound.stopAll()
                 this.scene.start('introScene')
@@ -197,7 +198,7 @@ class Menu extends Phaser.Scene {
         volumeDec.setInteractive()
 
         volumeInc.on('pointerup', () => {
-            clickSound.play()
+            clickSound()
             if (this.game.settings.volume < 1){
                 volumeInc.setFrame(1)
                 this.game.settings.volume = Phaser.Math.RoundTo(this.game.settings.volume + 0.1, -1)
@@ -210,7 +211,7 @@ class Menu extends Phaser.Scene {
         })
 
         volumeDec.on('pointerup', () => {
-            clickSound.play()
+            clickSound()
             if (this.game.settings.volume > 0) {
                 volumeDec.setFrame(3)
                 this.game.settings.volume = Phaser.Math.RoundTo(this.game.settings.volume - 0.1, -1)
@@ -235,7 +236,7 @@ class Menu extends Phaser.Scene {
         musicDec.setInteractive()
 
         musicInc.on('pointerup', () => {
-            clickSound.play()
+            clickSound()
             if (this.game.settings.music < 1){
                 musicInc.setFrame(1)
                 this.game.settings.music = Phaser.Math.RoundTo(this.game.settings.music + 0.1, -1)
@@ -248,7 +249,7 @@ class Menu extends Phaser.Scene {
         })
 
         musicDec.on('pointerup', () => {
-            clickSound.play()
+            clickSound()
             if (this.game.settings.music > 0) {
                 musicDec.setFrame(3)
                 this.game.settings.music = Phaser.Math.RoundTo(this.game.settings.music - 0.1, -1)
@@ -322,7 +323,7 @@ class Menu extends Phaser.Scene {
         // code for both after initialization
 
         creditsButton.on('pointerup', () => {
-            clickSound.play()
+            this.clickSound.play()
             creditsButton.setFrame(1)
             creditsToggle = !creditsToggle
             this.creditsText.setVisible(creditsToggle)
@@ -345,7 +346,7 @@ class Menu extends Phaser.Scene {
         })
         
         guideButton.on('pointerup', () => {
-            clickSound.play()
+            this.clickSound.play()
             guideButton.setFrame(1)
             guideToggle = !guideToggle
             this.guideText.setVisible(guideToggle)
