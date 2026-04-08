@@ -12,7 +12,7 @@ This project demonstrates system-level gameplay engineering, including player-bi
 - Designed a dual-entity system where control dynamically transfers between player and vehicle
 Managed visibility, physics, and input handling across multiple states
 ### Enemy AI (State-Based)
-- Implemented AI behavior using structured states (attack, fire, death)
+- Implemented AI behavior using structured states (chase, fire, death)
 Designed positioning logic to maintain optimal combat distance
 Built adaptive targeting (bike vs player depending on state)
 ### Combat System
